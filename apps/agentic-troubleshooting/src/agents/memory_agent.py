@@ -16,6 +16,16 @@ s3vectors = boto3.client("s3vectors", region_name=Config.AWS_REGION)
 VECTOR_BUCKET = Config.VECTOR_BUCKET
 INDEX_NAME = Config.INDEX_NAME
 
+class MemoryAgent:
+    """K8s troubleshooting memory agent using S3 Vectors."""
+    
+    def __init__(self):
+        self.agent = Agent(
+            system_prompt=MEMORY_SYSTEM_PROMPT,
+            model=Config.BEDROCK_MODEL_ID,
+            tools=[store_solution, retrieve_solutions]
+        )
+        
 @tool
 def store_solution(query: str, solution: str, metadata: dict = None) -> str:
     """Store a K8s troubleshooting solution in vector database."""
@@ -81,13 +91,3 @@ def retrieve_solutions(query: str, top_k: int = 3) -> str:
     except Exception as e:
         logger.error(f"Retrieve error: {e}")
         return f"Failed to retrieve: {e}"
-
-class MemoryAgent:
-    """K8s troubleshooting memory agent using S3 Vectors."""
-    
-    def __init__(self):
-        self.agent = Agent(
-            system_prompt=MEMORY_SYSTEM_PROMPT,
-            model=Config.BEDROCK_MODEL_ID,
-            tools=[store_solution, retrieve_solutions]
-        )
