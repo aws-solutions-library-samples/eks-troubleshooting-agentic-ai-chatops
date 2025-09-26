@@ -5,12 +5,8 @@ from src.config.settings import Config
 from src.prompts import ORCHESTRATOR_SYSTEM_PROMPT, CLASSIFICATION_PROMPT, K8S_KEYWORDS
 import logging
 import boto3
-import json
-import asyncio
-import httpx
 from uuid import uuid4
-from a2a.client import A2ACardResolver, ClientConfig, ClientFactory
-from a2a.types import Message, Part, Role, TextPart
+from strands_tools.a2a_client import A2AClientToolProvider
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +30,7 @@ class OrchestratorAgent:
             model=Config.BEDROCK_MODEL_ID,
             tools=[self.troubleshoot_k8s]
             # tools=[self.troubleshoot_k8s, self.memory_operations]
-            # tools=[self.troubleshoot_k8s, self.memory_send_message] #A2A
+            # tools=[self.troubleshoot_k8s, self.memory_agent_provider] #A2A
         )
         
     @tool
@@ -56,53 +52,41 @@ class OrchestratorAgent:
             logger.error(f"Memory operation failed: {e}")
             return f"Memory error: {e}"
     
-    # A2A Memory Agent
+    # A2A tool
     @tool
-    def memory_send_message(self, message: str, operation: str = "retrieve") -> str:
-        """Send message to memory agent with proper event loop handling."""
-        try:
-            # Create new event loop for each request
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
+    def memory_agent_provider(self, request: str) -> str:
+        """Handle Memory agent connection using a2aclienttoolprovider
+        
+        Args:
+            request (str): The request to send to the memory agent
             
-            try:
-                result = loop.run_until_complete(self._send_a2a_message(message))
-                return str(result)
-            finally:
-                loop.close()
-                
+        Returns:
+            str: Response from the memory agent
+            
+        Raises:
+            Exception: If memory agent connection fails
+        """
+        try:
+            # Initialize provider with memory agent URL
+            provider = A2AClientToolProvider(known_agent_urls=[Config.MEMORY_AGENT_SERVER_URL])
+            logger.debug(f"Initialized memory agent provider: {provider}")
+            
+            # Get available tools from provider
+            tools = provider.tools
+            logger.debug(f"Available memory agent tools: {tools}")        
+            
+            # Create agent with tools
+            agent = Agent(tools=tools)
+            
+            # Send request and get response
+            response = agent(request)
+            logger.info(f"Memory agent response received for request: {request[:100]}...")
+            
+            return str(response)
+            
         except Exception as e:
-            logger.error(f"Memory send message failed: {e}")
-            return f"Memory operation failed: {str(e)}"
-    
-    async def _send_a2a_message(self, message: str, base_url: str = "http://localhost:9000"):
-        """Send message to A2A agent with fresh HTTP client."""
-        async with httpx.AsyncClient(timeout=300) as httpx_client:
-            # Get agent card
-            resolver = A2ACardResolver(httpx_client=httpx_client, base_url=base_url)
-            agent_card = await resolver.get_agent_card()
-
-            # Create client using factory
-            config = ClientConfig(
-                httpx_client=httpx_client,
-                streaming=False,
-            )
-            factory = ClientFactory(config)
-            client = factory.create(agent_card)
-
-            # Create and send message
-            msg = Message(
-                kind="message",
-                role=Role.user,
-                parts=[Part(TextPart(kind="text", text=message))],
-                message_id=uuid4().hex,
-            )
-
-            # Get response
-            async for event in client.send_message(msg):
-                if hasattr(event, 'parts') and event.parts:
-                    return event.parts[0].text if hasattr(event.parts[0], 'text') else str(event)
-                return str(event)
+            logger.error(f"Memory agent operation failed: {e}")
+            raise Exception(f"Failed to process memory agent request: {str(e)}")        
     
     def respond(self, message: str, thread_id: str, context: str = None) -> str:
         """Main entry point for responses."""

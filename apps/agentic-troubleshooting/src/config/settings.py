@@ -33,6 +33,10 @@ class Config:
         return os.getenv('CLUSTER_NAME', 'eks-cluster')
     
     @property
+    def MEMORY_AGENT_SERVER_URL(self) -> str:
+        return os.getenv('MEMORY_AGENT_SERVER_URL', 'http://127.0.0.1:9000')
+    
+    @property
     def SLACK_BOT_TOKEN(self) -> str:
         return os.getenv('SLACK_BOT_TOKEN', '')
     
