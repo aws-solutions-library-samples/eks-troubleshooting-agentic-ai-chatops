@@ -16,3 +16,7 @@ kubernetes>=28.1.0
 
 # Utilities
 python-dotenv>=1.0.0
+
+# Dashboard
+streamlit>=1.28.0
+pandas>=2.0.0

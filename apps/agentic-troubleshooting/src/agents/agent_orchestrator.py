@@ -5,6 +5,7 @@ from src.config.settings import Config
 from src.prompts import ORCHESTRATOR_SYSTEM_PROMPT, CLASSIFICATION_PROMPT, K8S_KEYWORDS
 import logging
 import boto3
+import json
 from uuid import uuid4
 from strands_tools.a2a_client import A2AClientToolProvider
 
@@ -75,8 +76,11 @@ class OrchestratorAgent:
             tools = provider.tools
             logger.debug(f"Available memory agent tools: {tools}")        
             
-            # Create agent with tools
-            agent = Agent(tools=tools)
+            # Create agent with tools and system prompt
+            agent = Agent(
+                tools=tools,
+                system_prompt="You are a memory agent interface. Discover agents and tools you can use"
+            )
             
             # Send request and get response
             response = agent(request)
