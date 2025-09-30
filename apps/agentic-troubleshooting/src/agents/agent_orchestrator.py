@@ -29,9 +29,7 @@ class OrchestratorAgent:
             name="K8s Orchestrator",
             system_prompt=ORCHESTRATOR_SYSTEM_PROMPT,
             model=Config.BEDROCK_MODEL_ID,
-            tools=[self.troubleshoot_k8s]
-            # tools=[self.troubleshoot_k8s, self.memory_operations]
-            # tools=[self.troubleshoot_k8s, self.memory_agent_provider] #A2A
+            tools=[self.troubleshoot_k8s, self.memory_agent_provider] #A2A
         )
         
     @tool
@@ -122,42 +120,42 @@ class OrchestratorAgent:
             return True
         
         # Try Nova Micro classification first
-        # if self.bedrock_client:
-        #     return self._classify_with_nova(message)
+        if self.bedrock_client:
+            return self._classify_with_nova(message)
         
         return any(keyword in message.lower() for keyword in K8S_KEYWORDS)
 
-    # def _classify_with_nova(self, message: str) -> bool:
-    #     """Use Amazon Nova Micro to classify if message is K8s/troubleshooting related."""
-    #     try:
-    #         prompt = CLASSIFICATION_PROMPT.format(message=message)
+    def _classify_with_nova(self, message: str) -> bool:
+        """Use Amazon Nova Micro to classify if message is K8s/troubleshooting related."""
+        try:
+            prompt = CLASSIFICATION_PROMPT.format(message=message)
             
-    #         body = {
-    #             "messages": [
-    #                 {
-    #                     "role": "user",
-    #                     "content": [{"text": prompt}]
-    #                 }
-    #             ],
-    #             "inferenceConfig": {
-    #                 "maxTokens": 10,
-    #                 "temperature": 0.1
-    #             }
-    #         }
+            body = {
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": [{"text": prompt}]
+                    }
+                ],
+                "inferenceConfig": {
+                    "maxTokens": 10,
+                    "temperature": 0.1
+                }
+            }
             
-    #         response = self.bedrock_client.invoke_model(
-    #             modelId="amazon.nova-micro-v1:0",
-    #             body=json.dumps(body)
-    #         )
+            response = self.bedrock_client.invoke_model(
+                modelId="amazon.nova-micro-v1:0",
+                body=json.dumps(body)
+            )
             
-    #         result = json.loads(response['body'].read())
-    #         logger.info(f"Message classification should respond:{result}")
+            result = json.loads(response['body'].read())
+            logger.info(f"Message classification should respond:{result}")
             
-    #         answer = result['output']['message']['content'][0]['text'].strip().upper()
+            answer = result['output']['message']['content'][0]['text'].strip().upper()
             
-    #         return answer == "YES"
+            return answer == "YES"
             
-    #     except Exception as e:
-    #         logger.error(f"Nova classification failed: {e}")
-    #         # Fallback to keyword matching
-    #         return any(keyword in message.lower() for keyword in K8S_KEYWORDS)
+        except Exception as e:
+            logger.error(f"Nova classification failed: {e}")
+            # Fallback to keyword matching
+            return any(keyword in message.lower() for keyword in K8S_KEYWORDS)
