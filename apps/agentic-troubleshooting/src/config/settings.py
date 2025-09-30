@@ -102,22 +102,6 @@ class Config:
     @property
     def ENABLE_MENTION_RESPONSES(self) -> bool:
         return os.getenv('ENABLE_MENTION_RESPONSES', 'true').lower() == 'true'
-    
-    @property
-    def ENABLE_EKS_MCP(self) -> bool:
-        return os.getenv('ENABLE_EKS_MCP', 'false').lower() == 'true'
-    
-    @property
-    def EKS_MCP_ALLOW_WRITE(self) -> bool:
-        return os.getenv('EKS_MCP_ALLOW_WRITE', 'false').lower() == 'true'
-    
-    @property
-    def VECTOR_BUCKET(self) -> str:
-        return os.getenv('VECTOR_BUCKET', 'test-vector-s3-bucket-321')
-    
-    @property
-    def INDEX_NAME(self) -> str:
-        return os.getenv('INDEX_NAME', 'k8s-troubleshooting')
 
 
 # Create a singleton instance for use throughout the app
