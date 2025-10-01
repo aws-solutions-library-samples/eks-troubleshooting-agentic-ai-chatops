@@ -71,58 +71,32 @@ self.eks_mcp_client = None
 self._mcp_connected = False
 
 # Add EKS MCP server if enabled
-if Config.ENABLE_EKS_MCP:
-    try:
-        # Get AWS credentials from the current session (Pod Identity)
-        session = boto3.Session()
-        credentials = session.get_credentials()
-        
-        # Create EKS MCP client with explicit credentials
-        env_vars = {
-            "AWS_REGION": Config.AWS_REGION,
-            "FASTMCP_LOG_LEVEL": "ERROR"
-        }
-        
-        # Pass explicit AWS credentials if available
-        if credentials:
-            env_vars["AWS_ACCESS_KEY_ID"] = credentials.access_key
-            env_vars["AWS_SECRET_ACCESS_KEY"] = credentials.secret_key
-            if credentials.token:
-                env_vars["AWS_SESSION_TOKEN"] = credentials.token
-            logger.info("Using Pod Identity credentials for EKS MCP server")
-        else:
-            # Fallback to environment credentials
-            for key in ["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_SESSION_TOKEN", "AWS_PROFILE"]:
-                if key in os.environ:
-                    env_vars[key] = os.environ[key]
-            logger.info("Using environment credentials for EKS MCP server")
-        
-        # Use kubeconfig created by init container
-        env_vars["KUBECONFIG"] = "/shared/kubeconfig"
-        
-        # Build args based on configuration
-        args = ["awslabs.eks-mcp-server@latest", "--allow-sensitive-data-access"]
-        if Config.EKS_MCP_ALLOW_WRITE:
-            args.append("--allow-write")
-        
-        self.eks_mcp_client = MCPClient(lambda: stdio_client(
+if Config.ENABLE_EKS_MCP:  
+    env_vars = {
+        "AWS_REGION": Config.AWS_REGION,
+        "CLUSTER_NAME": getattr(Config, 'CLUSTER_NAME', 'unknown')
+    }
+    
+    args_list = ["awslabs.eks-mcp-server@latest", "--allow-sensitive-data-access"]
+    
+    if Config.EKS_MCP_ALLOW_WRITE:
+        args_list.append("--allow-write")
+    
+    self.eks_mcp_client = MCPClient(
+        lambda: stdio_client(
             StdioServerParameters(
                 command="uvx",
-                args=args,
+                args=args_list,
                 env=env_vars
             )
-        ))
-        
-        # Connect and get EKS MCP tools
-        self.eks_mcp_client.__enter__()
-        self._mcp_connected = True
-        eks_tools = self.eks_mcp_client.list_tools_sync()
-        tools.extend(eks_tools)
-        logger.info(f"Added {len(eks_tools)} EKS MCP tools with persistent connection")
-            
-    except Exception as e:
-        logger.warning(f"Failed to initialize EKS MCP: {e}")
-        self.eks_mcp_client = None
+        )
+    )
+    
+    self.eks_mcp_client.__enter__()
+    self._mcp_connected = True
+    eks_mcp_tools = self.eks_mcp_client.list_tools_sync()
+    
+    tools.extend(eks_mcp_tools)
 ```
 
 **📝 Step 3c: Add Cleanup Method**
