@@ -154,30 +154,42 @@ Respond with only "YES" or "NO"."""
 from src.prompts import ORCHESTRATOR_SYSTEM_PROMPT, CLASSIFICATION_PROMPT, K8S_KEYWORDS
 import json
 import boto3
+from strands.hooks.events import BeforeInvocationEvent
 ```
 
 **📝 Step 6b: Update Constructor**
 ```python
 def __init__(self):
     self.k8s_specialist = K8sSpecialist()
-
-    # Initialize Bedrock client for Nova Micro classification
+    self.last_user_message = None
+    
     try:
         self.bedrock_client = boto3.client('bedrock-runtime', region_name=Config.AWS_REGION)
     except Exception as e:
         logger.warning(f"Failed to initialize Bedrock client, falling back to keywords: {e}")
         self.bedrock_client = None
-    
+        
     self.agent = Agent(
         name="K8s Orchestrator",
         system_prompt=ORCHESTRATOR_SYSTEM_PROMPT,
         model=Config.BEDROCK_MODEL_ID,
         tools=[self.troubleshoot_k8s]
     )
+    
+    self.agent.hooks.add_callback(BeforeInvocationEvent, self.callback_message_validator) # Callback Hook
 ```
 
-**📝 Step 6c: Add Nova Classification Method**
+**📝 Step 6c: Add Nova Classification Method and CallBack**
 ```python
+def callback_message_validator(self, event: BeforeInvocationEvent):
+        classification = self._classify_with_nova(self.last_user_message)
+        logger.info(f"Message classification: {classification}")
+        
+        if not classification:
+            raise AgentSilentException("Agent decided not to respond to this message")
+
+        return classification
+
 def _classify_with_nova(self, message: str) -> bool:
     """Use Amazon Nova Micro to classify if message is K8s/troubleshooting related."""
     try:
@@ -214,12 +226,14 @@ def _classify_with_nova(self, message: str) -> bool:
         return any(keyword in message.lower() for keyword in K8S_KEYWORDS)
 ```
 
-**📝 Step 6d: Update `should_respond` Method**
-*Add this at the beginning of the method:*
+**📝 Step 6d: Comment `should_respond` implementation on `slack_handler.py`**
+*Lines 96 - 100*
 ```python
-# Try Nova Micro classification first
-if self.bedrock_client:
-    return self._classify_with_nova(message)
+# should_respond = self.should_respond(text, is_mention, is_active_thread) or is_active_thread
+# logger.info(f"Agent should respond: {should_respond} for message: '{text[:50]}...' (active_thread: {is_active_thread})")
+# if not should_respond:
+#     logger.info("Agent decided not to respond to this message")
+#     return
 ```
 
 ---
@@ -458,13 +472,12 @@ def memory_agent_provider(self, request: str) -> str:
 **📝 Step 11c: Update Constructor**
 ```python
 def __init__(self):
-    self.k8s_specialist = K8sSpecialist()
-    
+    ...
     self.agent = Agent(
         name="K8s Orchestrator",
         system_prompt=ORCHESTRATOR_SYSTEM_PROMPT,
         model=Config.BEDROCK_MODEL_ID,
-        tools=[self.troubleshoot_k8s, self.memory_agent_provider]
+        tools=[self.troubleshoot_k8s, self.memory_agent_provider] # add additional tool
     )
 ```
 

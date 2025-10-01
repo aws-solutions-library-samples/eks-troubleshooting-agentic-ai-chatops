@@ -5,10 +5,11 @@ import asyncio
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 from slack_sdk import WebClient
+from src.prompts import K8S_KEYWORDS
+
 
 from src.config.settings import Config
-from src.agents.agent_orchestrator import OrchestratorAgent
-# from src.agents.k8s_orchestrator import K8sOrchestrator
+from src.agents.agent_orchestrator import OrchestratorAgent, AgentSilentException
 
 logger = logging.getLogger(__name__)
 
@@ -92,7 +93,7 @@ class SlackHandler:
                         logger.info(f"Message is in active thread: {thread_key}")
                 
                 # Check if agent should respond (pass thread info to avoid unnecessary classification)
-                should_respond = self.orchestrator.should_respond(text, is_mention, is_active_thread) or is_active_thread
+                should_respond = self.should_respond(text, is_mention, is_active_thread) or is_active_thread
                 logger.info(f"Agent should respond: {should_respond} for message: '{text[:50]}...' (active_thread: {is_active_thread})")
                 if not should_respond:
                     logger.info("Agent decided not to respond to this message")
@@ -122,7 +123,12 @@ class SlackHandler:
                 # Get response from agent with thread_id for memory
                 thread_key = f"{channel}:{thread_ts}"
                 logger.info("Generating response from agent...")
-                response = self.orchestrator.respond(text, thread_key, context)
+                response = self.respond(text, thread_key, context)
+                
+                # Didnt pass the callback validation mechanism
+                if not response:
+                    return None
+                
                 logger.info(f"Agent response generated: {len(response)} characters")
                 
                 # Send response in thread
@@ -168,7 +174,7 @@ class SlackHandler:
                 channel = event.get("channel", "")
                 thread_key = f"{channel}:{thread_ts}"
                 logger.info("Generating response for mention...")
-                response = self.orchestrator.respond(text, thread_key)
+                response = self.respond(text, thread_key)
                 logger.info(f"Mention response generated: {len(response)} characters")
                 
                 # Ensure response is not empty
@@ -207,8 +213,39 @@ class SlackHandler:
         except Exception as e:
             logger.error(f"Error starting Slack handler: {e}")
             raise
+    
+    def should_respond(self, message: str, is_mention: bool = False, is_thread: bool = False) -> bool:
+        """Check if should respond to message using Nova Micro or keyword fallback."""
+        if is_mention:
+            return True
+        
+        if is_thread:
+            return True
+        
+        return any(keyword in message.lower() for keyword in K8S_KEYWORDS)
 
-
+    def respond(self, message: str, thread_id: str, context: str = None) -> str:
+        """Main entry point for responses."""
+        try:
+            self.orchestrator.last_user_message = message
+            agent_response = self.orchestrator.agent(message)
+            
+            if hasattr(agent_response, 'content'):
+                response = str(agent_response.content).strip()
+            elif hasattr(agent_response, 'text'):
+                response = str(agent_response.text).strip()
+            elif isinstance(agent_response, (list, tuple)):
+                response = ' '.join(str(part) for part in agent_response).strip()
+            else:
+                response = str(agent_response).strip()
+            
+            return response if response else "I'm here to help with Kubernetes troubleshooting. How can I assist you?"
+        except AgentSilentException:
+            return None  # Return None to indicate no response should be sent
+        except Exception as e:
+            logger.error(f"Orchestrator error: {e}")
+            return "Error processing request. Please try again."
+        
 if __name__ == "__main__":
     # Configure logging
     logging.basicConfig(
