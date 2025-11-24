@@ -40,18 +40,19 @@ slack_handler.py            # Slack integration
 
 ---
 
-### **STEP 3: Enable EKS MCP Integration** 🔧
+### **STEP 3: Enable EKS Hosted MCP Integration** 🔧
+
+**🎤 Talking Points:**
+- AWS launched EKS Hosted MCP - no need to run local MCP server
+- Simpler configuration using mcp-proxy-for-aws
+- Write access controlled by IAM roles, not flags
 
 #### **File 1: `config/settings.py`**
-**📝 Add these properties:**
+**📝 Add this property:**
 ```python
 @property
 def ENABLE_EKS_MCP(self) -> bool:
     return os.getenv('ENABLE_EKS_MCP', 'false').lower() == 'true'
-
-@property
-def EKS_MCP_ALLOW_WRITE(self) -> bool:
-    return os.getenv('EKS_MCP_ALLOW_WRITE', 'false').lower() == 'true'
 ```
 
 #### **File 2: `agents/k8s_specialist.py`**
@@ -60,8 +61,6 @@ def EKS_MCP_ALLOW_WRITE(self) -> bool:
 ```python
 from mcp import stdio_client, StdioServerParameters
 from strands.tools.mcp import MCPClient
-import boto3
-import os
 ```
 
 **📝 Step 3b: Update `__init__` Method**
@@ -70,24 +69,24 @@ import os
 self.eks_mcp_client = None
 self._mcp_connected = False
 
-# Add EKS MCP server if enabled
-if Config.ENABLE_EKS_MCP:  
-    env_vars = {
-        "AWS_REGION": Config.AWS_REGION,
-        "CLUSTER_NAME": getattr(Config, 'CLUSTER_NAME', 'unknown')
-    }
+# Add EKS Hosted MCP if enabled
+if Config.ENABLE_EKS_MCP:
+    # Use EKS Hosted MCP endpoint
+    mcp_url = f"https://eks-mcp.{Config.AWS_REGION}.api.aws/mcp"
     
-    args_list = ["awslabs.eks-mcp-server@latest", "--allow-sensitive-data-access"]
-    
-    if Config.EKS_MCP_ALLOW_WRITE:
-        args_list.append("--allow-write")
+    args_list = [
+        "mcp-proxy-for-aws@latest",
+        mcp_url,
+        "--service", "eks-mcp",
+        "--profile", "default",
+        "--region", Config.AWS_REGION
+    ]
     
     self.eks_mcp_client = MCPClient(
         lambda: stdio_client(
             StdioServerParameters(
                 command="uvx",
-                args=args_list,
-                env=env_vars
+                args=args_list
             )
         )
     )
@@ -110,6 +109,11 @@ def __del__(self):
         except:
             pass
 ```
+
+**💡 Key Benefits:**
+- No local MCP server to manage
+- AWS handles scaling and availability
+- IAM-based access control (write permissions via role, not flags)
 
 ---
 

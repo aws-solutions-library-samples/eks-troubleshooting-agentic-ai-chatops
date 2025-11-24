@@ -9,8 +9,8 @@ from pathlib import Path
 def main():
     """Run the Streamlit dashboard."""
     # Set environment variables if not already set
-    if not os.getenv('VECTOR_BUCKET_NAME'):
-        print("Warning: VECTOR_BUCKET_NAME not set")
+    if not os.getenv('VECTOR_BUCKET'):
+        print("Warning: VECTOR_BUCKET not set")
     
     if not os.getenv('AWS_REGION'):
         os.environ['AWS_REGION'] = 'us-east-1'

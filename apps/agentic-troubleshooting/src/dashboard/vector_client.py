@@ -13,7 +13,7 @@ class VectorClient:
     
     def __init__(self):
         self.aws_region = os.getenv('AWS_REGION', 'us-east-1')
-        self.vector_bucket_name = os.getenv('VECTOR_BUCKET_NAME')
+        self.vector_bucket_name = os.getenv('VECTOR_BUCKET')
         self.vector_index_name = os.getenv('VECTOR_INDEX_NAME', 'k8s-troubleshooting')
         
         # Initialize clients
