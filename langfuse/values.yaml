@@ -1,0 +1,91 @@
+global:
+  security:
+    allowInsecureImages: true
+
+langfuse: 
+  salt:
+    value: "langfuse-salt-key-2024"
+  nextauth:
+    secret:
+      value: ""
+    url: "http://localhost:3000"
+  
+  web:
+    extraInitContainers:
+      - name: wait-for-postgresql
+        image: busybox:1.36
+        command: ['sh', '-c', 'until nc -z langfuse-postgresql 5432; do echo waiting for postgresql; sleep 2; done;']
+      - name: wait-for-clickhouse
+        image: busybox:1.36
+        command: ['sh', '-c', 'until nc -z langfuse-clickhouse 9000; do echo waiting for clickhouse; sleep 2; done; sleep 10;']
+      - name: wait-for-s3
+        image: busybox:1.36
+        command: ['sh', '-c', 'until nc -z langfuse-s3 9000; do echo waiting for s3; sleep 2; done;']
+  
+  worker:
+    extraInitContainers:
+      - name: wait-for-postgresql
+        image: busybox:1.36
+        command: ['sh', '-c', 'until nc -z langfuse-postgresql 5432; do echo waiting for postgresql; sleep 2; done;']
+      - name: wait-for-clickhouse
+        image: busybox:1.36
+        command: ['sh', '-c', 'until nc -z langfuse-clickhouse 9000; do echo waiting for clickhouse; sleep 2; done; sleep 10;']
+
+postgresql:
+  auth:
+    username: langfuse
+    password: langfuse-postgres-pass
+    database: postgres_langfuse
+  image:
+    repository: bitnamilegacy/postgresql
+  primary:
+    persistence:
+      enabled: false
+
+clickhouse:
+  auth:
+    username: default
+    password: langfuse-postgres-pass"
+  image:
+    repository: bitnamilegacy/clickhouse
+  shards: 1
+  replicaCount: 1
+  persistence:
+    enabled: false
+  startupProbe:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    failureThreshold: 30
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 20
+    periodSeconds: 10
+  zookeeper:
+    enabled: true
+    replicaCount: 1
+    image:
+      repository: bitnamilegacy/zookeeper
+    persistence:
+      enabled: false
+
+redis:
+  auth:
+    password: langfuse-postgres-pass
+  image:
+    repository: bitnamilegacy/valkey
+  primary:
+    persistence:
+      enabled: false
+
+s3:
+  deploy: true
+  auth:
+    rootUser: minio
+    rootPassword: langfuse-postgres-pass"
+  image:
+    repository: bitnamilegacy/minio
+  mode: standalone
+  persistence:
+    enabled: false
+  defaultBuckets: "langfuse"

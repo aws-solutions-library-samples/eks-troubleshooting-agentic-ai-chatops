@@ -1,6 +1,7 @@
-# Core framework
+# Core frameworks
 strands-agents>=1.1.0
 strands-agents[a2a]
+strands-agents[otel]
 strands-agents-tools>=0.2.6
 
 # MCP support

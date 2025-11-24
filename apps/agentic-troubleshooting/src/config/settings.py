@@ -103,6 +103,22 @@ class Config:
     def ENABLE_MENTION_RESPONSES(self) -> bool:
         return os.getenv('ENABLE_MENTION_RESPONSES', 'true').lower() == 'true'
 
+    # Langfuse Properties
+    @property
+    def ENABLE_LANGFUSE(self) -> bool:
+        return os.getenv('ENABLE_LANGFUSE', 'false').lower() == 'true'
+
+    @property
+    def LANGFUSE_SECRET_KEY(self) -> str:
+        return os.getenv('LANGFUSE_SECRET_KEY', '')
+
+    @property
+    def LANGFUSE_PUBLIC_KEY(self) -> str:
+        return os.getenv('LANGFUSE_PUBLIC_KEY', '')
+
+    @property
+    def LANGFUSE_HOST(self) -> str:
+        return os.getenv('LANGFUSE_HOST', 'http://localhost:3000')
 
 # Create a singleton instance for use throughout the app
 Config = Config()

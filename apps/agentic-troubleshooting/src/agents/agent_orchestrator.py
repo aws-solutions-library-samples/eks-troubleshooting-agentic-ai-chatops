@@ -1,10 +1,14 @@
 from strands import Agent, tool
 from src.agents.k8s_specialist import K8sSpecialist
 from src.config.settings import Config
+from src.config.telemetry import setup_langfuse_telemetry
 from src.prompts import ORCHESTRATOR_SYSTEM_PROMPT
 import logging
 
 logger = logging.getLogger(__name__)
+
+# Initialize telemetry if enabled
+setup_langfuse_telemetry()
 
 class AgentSilentException(Exception):
     """Exception that should not generate error responses."""
