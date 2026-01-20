@@ -1,11 +1,12 @@
-# EKS Troubleshooting Assistant
+# Guidance for Troubleshooting of Amazon EKS using Agentic AI workflow on AWS
 
-This project provides two different approaches for troubleshooting EKS (Elastic Kubernetes Service) issues:
+This guidance provides two different approaches for troubleshooting EKS (Elastic Kubernetes Service) issues:
 
-1. **RAG-based Chatbot**: A document retrieval chatbot that uses OpenSearch to retrieve relevant logs and provides intelligent troubleshooting assistance
-2. **Strands-based Agentic Troubleshooting**: An intelligent agent using AWS Strands Agent framework with EKS MCP server integration for real-time troubleshooting
 
-Both solutions are deployed using Terraform, which provisions the necessary AWS resources including EKS cluster, monitoring, and application-specific infrastructure.
+1. **Strands-based Agentic AI workflow Troubleshooting**: An intelligent agent using AWS Strands Agent framework with EKS MCP server integration for real-time troubleshooting via Slack based ChatOps
+2. **RAG-based Chatbot**: A document retrieval chatbot that uses OpenSearch vector storage to retrieve relevant logs and provides intelligent troubleshooting assistance
+
+Both solutions are deployed using Terraform blueprint, which provisions the necessary AWS resources including EKS cluster, monitoring, and application-specific infrastructure.
 
 ## Project Structure
 
@@ -70,47 +71,7 @@ Before running this project, make sure you have the following installed:
 
 ## Deployment Options
 
-### Option 1: RAG-based Chatbot Deployment (Default)
-
-The RAG-based approach uses an ingestion pipeline with Kinesis, OpenSearch, and intelligent troubleshooting capabilities.
-
-![RAG ChatBot Architecture](static/images/chatbot-architecture.jpg)
-
-#### Setup Steps
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/aws-samples/sample-eks-troubleshooting-rag-chatbot
-   cd sample-eks-troubleshooting-rag-chatbot
-   ```
-
-2. **Configure Terraform variables:**
-   Create `terraform/terraform.tfvars` file:
-   ```hcl
-   deployment_type = "rag"  # This is the default
-   slack_webhook_url = "https://hooks.slack.com/services/[YOUR-WEBHOOK]"
-   slack_channel_name = "alert-manager-alerts"
-   ```
-
-3. **Deploy infrastructure:**
-   ```bash
-   cd terraform/
-   ./install.sh
-   ```
-
-4. **Deploy test pods and access the chatbot:**
-   ```bash
-   cd ../
-   ./provision-delete-error-pods.sh -p db-migration
-   
-   # Forward the Chatbot service port to your local machine
-   kubectl port-forward -n agentic-chatbot service/agentic-chatbot 7860:7860
-   ```
-
-5. **Access the chatbot:**
-   Open your browser to `http://localhost:7860`
-
-### Option 2: Strands-based Agentic Troubleshooting Deployment
+### Option 1: Strands-based Agentic Troubleshooting Deployment
 
 The agentic approach uses the AWS Strands Agent framework with EKS MCP server integration for intelligent, real-time troubleshooting.
 
@@ -218,6 +179,48 @@ The agentic deployment will automatically:
 - Set up Pod Identity associations
 - Deploy the Helm chart with the troubleshooting agent
 - Configure Slack integration
+
+### Option 2: RAG-based Chatbot Deployment (Default)
+
+The RAG-based approach uses an ingestion pipeline with Kinesis, OpenSearch, and intelligent troubleshooting capabilities.
+
+![RAG ChatBot Architecture](static/images/chatbot-architecture.jpg)
+
+#### Setup Steps
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/aws-samples/sample-eks-troubleshooting-rag-chatbot
+   cd sample-eks-troubleshooting-rag-chatbot
+   ```
+
+2. **Configure Terraform variables:**
+   Create `terraform/terraform.tfvars` file:
+   ```hcl
+   deployment_type = "rag"  # This is the default
+   slack_webhook_url = "https://hooks.slack.com/services/[YOUR-WEBHOOK]"
+   slack_channel_name = "alert-manager-alerts"
+   ```
+
+3. **Deploy infrastructure:**
+   ```bash
+   cd terraform/
+   ./install.sh
+   ```
+
+4. **Deploy test pods and access the chatbot:**
+   ```bash
+   cd ../
+   ./provision-delete-error-pods.sh -p db-migration
+   
+   # Forward the Chatbot service port to your local machine
+   kubectl port-forward -n agentic-chatbot service/agentic-chatbot 7860:7860
+   ```
+
+5. **Access the chatbot:**
+   Open your browser to `http://localhost:7860`
+
+
 
 ## Key Features
 
