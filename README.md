@@ -9,8 +9,9 @@ Both solutions are deployed using Terraform, which provisions the necessary AWS 
 ## Architecture
 
 ### Reference Architecture - EKS Cluster
-<!--![Architecture Diagram](image/deployment.png)-->
-![Reference Architecture Diagram](static/images/'EKS troubleshooting agentic AI diagram 1.png')
+<!--static/images/chatbot-architecture.jpg-->
+
+![Reference Architecture Diagram](/static/images/EKS%20troubleshooting%20agentic%20AI%20diagram%201.png)
 
 _Figure 1: Guidance for Troubleshooting of Amazon EKS using Agentic AI workflow on AWS - Reference Architecture_
 
@@ -32,9 +33,9 @@ _Figure 1: Guidance for Troubleshooting of Amazon EKS using Agentic AI workflow 
 
 ### Agentic AI workflow Architecture
 
-![Agentic AI workflow Architecture Diagram](static/images/static/images/chatbot-architecture.jpg)
+![Agentic AI workflow Architecture Diagram](/static/images/EKS%20troubleshooting%20agentic%20AI%20diagram%202b.png)
 
-_Figure 2: Guidance for Troubleshooting of Amazon EKS using Agentic AI workflow on AWS - Troubleshooting Workflow
+_Figure 2: Guidance for Troubleshooting of Amazon EKS using Agentic AI workflow on AWS - Troubleshooting Workflow_
 
 ### Agentic AI workflow Architecture Steps
 
@@ -79,7 +80,7 @@ _Figure 2: Guidance for Troubleshooting of Amazon EKS using Agentic AI workflow 
 
 ## Prerequisites
 
-Before running this project, make sure you have the following installed:
+Before running this project, make sure you have the following tools installed:
 
 - [Terraform](https://www.terraform.io/downloads.html)
 - [AWS CLI](https://aws.amazon.com/cli/)
@@ -116,16 +117,30 @@ Before running this project, make sure you have the following installed:
    - **Enable Socket Mode** for real-time events
    - Note the Bot Token (`xoxb-...`), App Token (`xapp-...`), and Signing Secret
 
-## Plan your deployment
+ Please see sample settings for Slack aplication OAuth and Scope permissions below:
+ 
+ ![Sample Slack OAuth application - permissions](/static/images/slack_app_Oauth_permissions.png)
+ 
+ _Figure 3: Guidance for Troubleshooting of Amazon EKS using Agentic AI workflow on AWS - Sample app OAuth permissons_
+ 
+ ![Sample Slack OAuth application - scopes](static/images/slack_app_config_OAuth_Scopes.png)
+ 
+ _Figure 4: Guidance for Troubleshooting of Amazon EKS using Agentic AI workflow on AWS - Sample app OAuth Scopes_
+ 
+ ![Sample Slack Application adding to Channel](static/images/slack_adding_app_to_channel.png)
+ 
+ _Figure 5: Guidance for Troubleshooting of Amazon EKS using Agentic AI workflow on AWS - Adding Sample app  to Channel_
 
-<TODO>: update the services list and Cost estimates below
+## Plan your Deployment
+
+{TODO}: update the services list and Cost estimates below
 
 ### AWS services in this Guidance
 
 | **AWS Service**                                                              | **Role**           | **Description**                                                                                             |
 |------------------------------------------------------------------------------|--------------------|-------------------------------------------------------------------------------------------------------------|
-| [Amazon Elastic Kubernetes Service](https://aws.amazon.com/eks/) ( EKS)      | Core service       | Manages the Kubernetes control plane and worker nodes for container orchestration.                          |
-| [Amazon Elastic Compute Cloud](https://aws.amazon.com/ec2/) (EC2)            | Core service       | Provides the compute instances for EKS worker nodes and runs containerized applications.                    |
+| [Amazon Elastic Kubernetes Service](https://aws.amazon.com/eks/) ( EKS)      | Core service       | Manages the Kubernetes control plane and compute nodes for container orchestration.                          |
+| [Amazon Elastic Compute Cloud](https://aws.amazon.com/ec2/) (EC2)            | Core service       | Provides the compute instances for EKS compute nodes and runs containerized applications.                    |
 | [Amazon Virtual Private Cloud](https://aws.amazon.com/vpc/) (VPC)            | Core Service       | Creates an isolated network environment with public and private subnets across multiple Availability Zones. |
 | [Amazon Elastic Container Registry](http://aws.amazon.com/ecr/) (ECR)        | Supporting service | Stores and manages Docker container images for EKS deployments.                                             |
 | [Elastic Load Balancing](https://aws.amazon.com/elasticloadbalancing/) (NLB) | Supporting service | Distributes incoming traffic across multiple targets in the EKS cluster.                                    |
@@ -135,12 +150,10 @@ Before running this project, make sure you have the following installed:
 ### Cost
 
 You are responsible for the cost of the AWS services used while running this guidance.
-As of August 2025, the cost for running this guidance with the default settings in the US West (Oregon) Region is
-approximately **$296.21/month**.
+As of February 2026, the cost for running this guidance with the default settings in the US West (Oregon) Region is
+approximately **$XXX.YY/month**.
 
-We recommend creating a [budget](https://alpha-docs-aws.amazon.com/awsaccountbilling/latest/aboutv2/budgets-create.html)
-through [AWS Cost Explorer](http://aws.amazon.com/aws-cost-management/aws-cost-explorer/) to help manage costs. Prices
-are subject to change. For full details, refer to the pricing webpage for each AWS service used in this guidance.
+We recommend creating a [budget](https://alpha-docs-aws.amazon.com/awsaccountbilling/latest/aboutv2/budgets-create.html) through [AWS Cost Explorer](http://aws.amazon.com/aws-cost-management/aws-cost-explorer/) to help manage costs. Prices are subject to change. For full details, refer to the pricing webpage for each AWS service used in this guidance.
 
 ### Sample cost table
 
@@ -175,8 +188,7 @@ Workload Ready Cluster. Here are the key security components and considerations:
 
 ### Identity and Access Management (IAM)
 
-- **EKS Managed Node Groups**: These use IAM roles with specific permissions required for nodes to join the cluster and
-  for pods to access AWS services.
+- **EKS Managed Node Groups**: These use IAM roles with specific permissions required for nodes to join the cluster and for pods to access AWS services.
 
 ### Network Security
 
@@ -195,8 +207,7 @@ Workload Ready Cluster. Here are the key security components and considerations:
 
 ### Kubernetes-specific Security
 
-- **Kubernetes RBAC**: Role-Based Access Control is implemented within the EKS cluster to manage fine-grained access to
-  Kubernetes resources.
+- **Kubernetes RBAC**: Role-Based Access Control is implemented within the EKS cluster to manage fine-grained access to Kubernetes resources.
 
 ### Secrets Management
 
@@ -205,7 +216,7 @@ Workload Ready Cluster. Here are the key security components and considerations:
 
 ### Additional Security Considerations
 
-- Regularly update and patch EKS clusters, worker nodes, and container images.
+- Regularly update and patch EKS clusters, compute nodes, and container images.
 - Implement network policies to control pod-to-pod communication within the cluster.
 - Use Pod Security Policies or Pod Security Standards to enforce security best practices for pods.
 - Implement proper logging and auditing mechanisms for both AWS and Kubernetes resources.
