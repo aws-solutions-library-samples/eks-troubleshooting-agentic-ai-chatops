@@ -1,0 +1,183 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2867
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 2026-01-13 20:48:06,829 - INFO - Added 16 EKS MCP tools with persistent connection\
+2026-01-13 20:48:07,528 - INFO - Bot user ID: U0A807WN05A - Registering event handlers...\
+2026-01-13 20:48:07,528 - INFO - Starting K8s Troubleshooting Agent...\
+2026-01-13 20:48:07,529 - INFO - Starting Slack handler...\
+2026-01-13 20:48:07,650 - INFO - A new session has been established (session id: 140ee0a6-cc08-4f07-9286-ecd8ec368883)\
+2026-01-13 20:48:07,651 - INFO - \uc0\u9889 \u65039  Bolt app is running!\
+2026-01-13 20:48:07,729 - INFO - Starting to receive messages from a new connection (session id: 140ee0a6-cc08-4f07-9286-ecd8ec368883)\
+2026-01-13 20:51:13,735 - INFO - Message received - User: U0A811HBLM7, Bot ID: None, Channel: C0A8GCZEPEC\
+2026-01-13 20:51:14,024 - INFO - Message classification should respond:\{'output': \{'message': \{'content': [\{'text': 'YES'\}], 'role': 'assistant'\}\}, 'stopReason': 'end_turn', 'usage': \{'inputTokens': 54, 'outputTokens': 2, 'totalTokens': 56, 'cacheReadInputTokenCount': 0, 'cacheWriteInputTokenCount': 0\}\}\
+2026-01-13 20:51:14,024 - INFO - Agent should respond: True for message: 'Investigate why the db-migration-pod in the prod-a...' (active_thread: False)\
+2026-01-13 20:51:16,027 - INFO - Generating response from agent...\
+2026-01-13 20:51:16,028 - INFO - Creating Strands MetricsClient\
+I'll investigate why your db-migration-pod in the prod-apps namespace is stuck in Pending state. Let me first check if we have similar issues in memory.\
+Tool #1: memory_operations\
+I'll search for similar Kubernetes troubleshooting solutions for your issue with a db-migration-pod stuck in Pending state in the prod-apps namespace. Let me retrieve relevant solutions from our database.\
+Tool #1: retrieve_solutions\
+*K8s Troubleshooting Results: db-migration-pod Pending in prod-apps*\
+\
+I found 3 similar issues in our database. Here are the solutions:\
+\
+*Solution 1: Resource Mismatch Issue*\
+\
+*Issue Details:*\
+- Pod requests 6 cores CPU and 12Gi memory\
+- All 3 cluster nodes are m5.large instances (2 cores, 7.9GB each)\
+- Karpenter NodePool "default" has restrictive resource limits (4000m CPU, 8Gi memory)\
+- The NodePool only allows "small" and "medium" instance types\
+\
+*Solutions:*\
+1. Reduce pod resource requests:\
+   ```\
+   resources:\
+     requests:\
+       memory: "7Gi"  # Reduced from 12Gi\
+       cpu: "2"       # Reduced from 6 cores\
+   ```\
+\
+2. Increase NodePool resource limits:\
+   ```\
+   kubectl patch nodepool default --type=merge -p '\{"spec":\{"limits":\{"cpu":"8000m","memory":"16Gi"\}\}\}'\
+   ```\
+\
+3. Add larger instance types to the NodePool:\
+   ```\
+   # In NodePool spec.template.spec.requirements\
+   - key: "node.kubernetes.io/instance-type"\
+     operator: In\
+     values: ["m5.large", "m5.xlarge", "m5.2xlarge", "m5.4xlarge"] \
+   ```\
+\
+4. Create a dedicated NodePool for migration jobs with higher limits.\
+\
+*Solution 2: NodePool Configuration Issue*\
+\
+*Current Issue:*\
+- Pod remains Pending despite adding "large" and "xlarge" instance types to NodePool\
+- Pod still requires 6 cores CPU and 12Gi memory\
+- Root cause: NodePool CPU/memory limits (4000m/8Gi) were not increased\
+- Despite larger instance types being available, Karpenter won't provision nodes exceeding NodePool limits\
+\
+*Recommendations:*\
+1. Increase NodePool resource limits:\
+   ```\
+   kubectl patch nodepool default --type=merge -p '\{"spec":\{"limits":\{"cpu":"12000m","memory":"16Gi"\}\}\}'\
+   ```\
+\
+2. Create a dedicated NodePool for large workloads with higher limits (16000m CPU, 32Gi memory)\
+\
+3. Temporarily reduce pod resource requirements as workaround\
+\
+4. Consider manual node addition if urgent with appropriate node labels\
+\
+*Solution 3: Resource Constraints in Cluster*\
+\
+*Issue Diagnosis:*\
+- The pod was requesting 6 cores CPU and 12Gi memory\
+- kubectl describe pod showed: "0/3 nodes available: 3 Insufficient cpu, 3 Insufficient memory"\
+- Karpenter nodepool constraints preventing the scheduling of this pod on larger instances\
+\
+*Solutions:*\
+1. Reduce resource requests in the pod specification\
+2. Update Karpenter nodepool configuration to allow larger instances\
+3. Manually add larger nodes to the cluster\
+\
+*Verification steps for all solutions:*\
+```\
+kubectl get pods -n prod-apps\
+kubectl describe pod db-migration-pod -n prod-apps\
+```\
+\
+Would you like me to explain any of these solutions in more detail?*K8s Troubleshooting Results: db-migration-pod Pending in prod-apps*\
+\
+I found 3 similar issues in our database. Here are the solutions:\
+\
+*Solution 1: Resource Mismatch Issue*\
+\
+*Issue Details:*\
+- Pod requests 6 cores CPU and 12Gi memory\
+- All 3 cluster nodes are m5.large instances (2 cores, 7.9GB each)\
+- Karpenter NodePool "default" has restrictive resource limits (4000m CPU, 8Gi memory)\
+- The NodePool only allows "small" and "medium" instance types\
+\
+*Solutions:*\
+1. Reduce pod resource requests:\
+   ```\
+   resources:\
+     requests:\
+       memory: "7Gi"  # Reduced from 12Gi\
+       cpu: "2"       # Reduced from 6 cores\
+   ```\
+\
+2. Increase NodePool resource limits:\
+   ```\
+   kubectl patch nodepool default --type=merge -p '\{"spec":\{"limits":\{"cpu":"8000m","memory":"16Gi"\}\}\}'\
+   ```\
+\
+3. Add larger instance types to the NodePool:\
+   ```\
+   # In NodePool spec.template.spec.requirements\
+   - key: "node.kubernetes.io/instance-type"\
+     operator: In\
+     values: ["m5.large", "m5.xlarge", "m5.2xlarge", "m5.4xlarge"] \
+   ```\
+\
+4. Create a dedicated NodePool for migration jobs with higher limits.\
+\
+*Solution 2: NodePool Configuration Issue*\
+\
+*Current Issue:*\
+- Pod remains Pending despite adding "large" and "xlarge" instance types to NodePool\
+- Pod still requires 6 cores CPU and 12Gi memory\
+- Root cause: NodePool CPU/memory limits (4000m/8Gi) were not increased\
+- Despite larger instance types being available, Karpenter won't provision nodes exceeding NodePool limits\
+\
+*Recommendations:*\
+1. Increase NodePool resource limits:\
+   ```\
+   kubectl patch nodepool default --type=merge -p '\{"spec":\{"limits":\{"cpu":"12000m","memory":"16Gi"\}\}\}'\
+   ```\
+\
+2. Create a dedicated NodePool for large workloads with higher limits (16000m CPU, 32Gi memory)\
+\
+3. Temporarily reduce pod resource requirements as workaround\
+\
+4. Consider manual node addition if urgent with appropriate node labels\
+\
+*Solution 3: Resource Constraints in Cluster*\
+\
+*Issue Diagnosis:*\
+- The pod was requesting 6 cores CPU and 12Gi memory\
+- kubectl describe pod showed: "0/3 nodes available: 3 Insufficient cpu, 3 Insufficient memory"\
+- Karpenter nodepool constraints preventing the scheduling of this pod on larger instances\
+\
+*Solutions:*\
+1. Reduce resource requests in the pod specification\
+2. Update Karpenter nodepool configuration to allow larger instances\
+3. Manually add larger nodes to the cluster\
+\
+*Verification steps for all solutions:*\
+```\
+kubectl get pods -n prod-apps\
+kubectl describe pod db-migration-pod -n prod-apps\
+```\
+\
+Would you like me to explain any of these solutions in more detail?2026-01-13 20:51:40,002 - INFO - Full agent response: *K8s Troubleshooting Results: db-migration-pod Pending in prod-apps*\
+\
+I found 3 similar issues in our database. Here are the solutions:\
+\
+*Solution 1: Resource Mismatch Issue*\
+\
+*Issue Details:*\
+- Pod r...\
+2026-01-13 20:51:40,002 - INFO - Agent response generated: 2569 characters\
+2026-01-13 20:51:40,002 - INFO - Sending response to thread: 1768337472.752289\
+2026-01-13 20:51:40,169 - INFO - Response sent successfully\
+2026-01-13 20:51:40,169 - INFO - Added thread to active threads: C0A8GCZEPEC:1768337472.752289}
