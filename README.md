@@ -345,7 +345,7 @@ The agentic deployment will automatically:
 ## Configuration
 
 ### Terraform Variables
-- **deployment_type**: `"rag"` (default) or `"agentic"`
+- **deployment_type**: `"agentic"` (default) or `"rag"` 
 - **name**: Project name (default: `"eks-llm-troubleshooting"`)
 - **slack_webhook_url**: Slack webhook for alerts (both deployments)
 - **slack_channel_name**: Slack channel name (both deployments)
@@ -364,7 +364,8 @@ The agentic deployment will automatically:
 -->
 
 ### Strands Agentic AI Workflow
-See [Demo Script](demo/demo-script.md) for complete testing instructions and example scenarios.
+See [Demo EKS Troubleshooting Script](/demo/demo-script.md) for complete testing instructions and example scenarios.
+
 <TODO> Add instructions for testing Slack based ChatOps scenario with Agentic AI workflow.
 
 ## Cleanup
@@ -387,9 +388,11 @@ See [Demo Script](demo/demo-script.md) for complete testing instructions and exa
 
 ## Architecture
 
+<!--
 ### RAG Architecture
 - EKS Cluster with Fluent Bit → Kinesis → OpenSearch → Gradio Interface
 - Bedrock for AI-powered responses
+-->
 
 ### Strands-based Agentic Architecture
 - Multi-agent system with EKS MCP integration
