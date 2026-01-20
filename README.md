@@ -1,11 +1,10 @@
-# EKS Troubleshooting Assistant
+# Guidance for Troubleshooting of Amazon EKS using Agentic AI workflow on AWS
 
 This project provides two different approaches for troubleshooting EKS (Elastic Kubernetes Service) issues:
 
-1. **RAG-based Chatbot**: A document retrieval chatbot that uses OpenSearch to retrieve relevant logs and provides intelligent troubleshooting assistance
-2. **Strands-based Agentic Troubleshooting**: An intelligent agent using AWS Strands Agent framework with EKS MCP server integration for real-time troubleshooting
+1. **Strands-based AI Agentic workflow Troubleshooting**: An intelligent agent using AWS Strands Agent framework with EKS MCP server integration for real-time troubleshooting
 
-Both solutions are deployed using Terraform, which provisions the necessary AWS resources including EKS cluster, monitoring, and application-specific infrastructure.
+Both solutions are deployed using Terraform, which provisions the necessary AWS resources including EKS cluster, monitoring tools, and application-specific infrastructure.
 
 ## Project Structure
 
@@ -16,10 +15,6 @@ Both solutions are deployed using Terraform, which provisions the necessary AWS 
 │   │   ├── src/tools/             # EKS MCP tools integration
 │   │   ├── helm/                  # Kubernetes deployment charts
 │   │   └── main.py                # Strands agent entry point
-│   └── chatbot/                   # RAG-based chatbot with Gradio UI
-│       ├── clients/               # OpenSearch, LLM, and K8s clients
-│       ├── utils/                 # Logging and utilities
-│       └── app.py                 # Gradio application entry point
 ├── terraform/                      # Infrastructure as Code
 │   ├── main.tf                    # Main EKS cluster configuration
 │   ├── agentic.tf                 # Strands agent deployment resources
@@ -70,47 +65,7 @@ Before running this project, make sure you have the following installed:
 
 ## Deployment Options
 
-### Option 1: RAG-based Chatbot Deployment (Default)
-
-The RAG-based approach uses an ingestion pipeline with Kinesis, OpenSearch, and intelligent troubleshooting capabilities.
-
-![RAG ChatBot Architecture](static/images/chatbot-architecture.jpg)
-
-#### Setup Steps
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/aws-samples/sample-eks-troubleshooting-rag-chatbot
-   cd sample-eks-troubleshooting-rag-chatbot
-   ```
-
-2. **Configure Terraform variables:**
-   Create `terraform/terraform.tfvars` file:
-   ```hcl
-   deployment_type = "rag"  # This is the default
-   slack_webhook_url = "https://hooks.slack.com/services/[YOUR-WEBHOOK]"
-   slack_channel_name = "alert-manager-alerts"
-   ```
-
-3. **Deploy infrastructure:**
-   ```bash
-   cd terraform/
-   ./install.sh
-   ```
-
-4. **Deploy test pods and access the chatbot:**
-   ```bash
-   cd ../
-   ./provision-delete-error-pods.sh -p db-migration
-   
-   # Forward the Chatbot service port to your local machine
-   kubectl port-forward -n agentic-chatbot service/agentic-chatbot 7860:7860
-   ```
-
-5. **Access the chatbot:**
-   Open your browser to `http://localhost:7860`
-
-### Option 2: Strands-based Agentic Troubleshooting Deployment
+### Option 1: Strands-based Agentic AI Workflow Troubleshooting Deployment
 
 The agentic approach uses the AWS Strands Agent framework with EKS MCP server integration for intelligent, real-time troubleshooting.
 
@@ -176,7 +131,7 @@ graph LR
    echo "Index name: k8s-troubleshooting"
    ```
 
-4. **Build and push the Docker image:**
+4. **Build and push the Docker images for Agents :**
    ```bash
    cd apps/agentic-troubleshooting/
    
@@ -219,14 +174,10 @@ The agentic deployment will automatically:
 - Deploy the Helm chart with the troubleshooting agent
 - Configure Slack integration
 
+
 ## Key Features
 
-### RAG-based Chatbot
-- Log processing pipeline with OpenSearch indexing
-- Semantic search through log data with Gradio interface
-- Intelligent troubleshooting with kubectl command execution
-
-### Strands-based Agentic Troubleshooting
+### Strands-based Agentic AI workflow Troubleshooting
 - Multi-agent orchestration with EKS MCP integration
 - S3 Vectors storage for tribal knowledge
 - Slack bot integration with Pod Identity security
@@ -246,13 +197,16 @@ The agentic deployment will automatically:
 
 ## Testing
 
+<!--
 ### RAG Deployment
 1. Deploy problematic pods: `./provision-delete-error-pods.sh -p db-migration`
 2. Access Gradio interface at `http://localhost:7860/`
 3. Query the chatbot about EKS issues
+-->
 
-### Strands Agentic Deployment
+### Strands Agentic AI Workflow
 See [Demo Script](demo/demo-script.md) for complete testing instructions and example scenarios.
+<TODO> Add instructions for testing Slack based ChatOps scenario with Agentic AI workflow.
 
 ## Cleanup
 
@@ -294,7 +248,7 @@ See [Demo Script](demo/demo-script.md) for complete testing instructions and exa
 ## Acknowledgments
 
 This project uses:
-- [Gradio](https://www.gradio.app/) for the user interface
+<!-- - [Gradio](https://www.gradio.app/) for the user interface -->
 - [Terraform AWS EKS Blueprints](https://github.com/aws-ia/terraform-aws-eks-blueprints) for infrastructure
 - [AWS Strands Agent Framework](https://github.com/aws/strands) for multi-agent orchestration (Agentic deployment)
 - [EKS MCP Server](https://github.com/aws/eks-mcp-server) for Kubernetes integration via Model Context Protocol (Agentic deployment)
