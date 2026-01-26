@@ -133,8 +133,6 @@ Before running this project, make sure you have the following tools installed:
 
 ## Plan your Deployment
 
-{TODO}: update the services list and Cost estimates below
-
 ### AWS services in this Guidance
 
 | **AWS Service**                                                              | **Role**           | **Description**                                                                                             |
