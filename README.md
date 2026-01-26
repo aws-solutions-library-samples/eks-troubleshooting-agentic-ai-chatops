@@ -296,8 +296,8 @@ See [Demo Script](demo/demo-script.md) for complete testing instructions and exa
 This project uses:
 - [Gradio](https://www.gradio.app/) for the user interface
 - [Terraform AWS EKS Blueprints](https://github.com/aws-ia/terraform-aws-eks-blueprints) for infrastructure
-- [AWS Strands Agent Framework](https://github.com/aws/strands) for multi-agent orchestration (Agentic deployment)
-- [EKS MCP Server](https://github.com/aws/eks-mcp-server) for Kubernetes integration via Model Context Protocol (Agentic deployment)
+- [AWS Strands Agent Framework](https://strandsagents.com/latest/) for multi-agent orchestration (Agentic deployment)
+- [EKS MCP Server](https://github.com/awslabs/mcp/tree/main/src/eks-mcp-server) for Kubernetes integration via Model Context Protocol (Agentic deployment)
 
 ## Security
 
