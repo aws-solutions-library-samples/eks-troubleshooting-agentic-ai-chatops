@@ -142,16 +142,24 @@ Before running this project, make sure you have the following tools installed:
 | [Amazon Elastic Kubernetes Service](https://aws.amazon.com/eks/) ( EKS)      | Core service       | Manages the Kubernetes control plane and compute nodes for container orchestration.                          |
 | [Amazon Elastic Compute Cloud](https://aws.amazon.com/ec2/) (EC2)            | Core service       | Provides the compute instances for EKS compute nodes and runs containerized applications.                    |
 | [Amazon Virtual Private Cloud](https://aws.amazon.com/vpc/) (VPC)            | Core Service       | Creates an isolated network environment with public and private subnets across multiple Availability Zones. |
+| [Amazon Simple Storage Service](https://aws.amazon.com/s3/) (S3)           | Core Service         | Stores vector embeddings generated from log data and serves as the knowledge base repository for the system's semantic search capabilities.                             |
+| [AWS Bedrock](https://aws.amazon.com/bedrock/)                              | Core Service       |Provides the foundational AI models for natural language processing, query understanding, and generating intelligent troubleshooting recommendations based on cluster data. |
+| [Amazon OpenSearch Service](https://aws.amazon.com/opensearch-service/)| Core Service       | Stores and indexes EKS cluster logs, enabling fast search and retrieval capabilities for the system to find relevant troubleshooting information.                       |
+| [Amazon Kinesis Data Streams](https://aws.amazon.com/kinesis/data-streams/) | Core Service      |Processes real-time log streams from EKS clusters, ensuring continuous data flow for immediate troubleshooting analysis and alerting.                                       |
 | [Amazon Elastic Container Registry](http://aws.amazon.com/ecr/) (ECR)        | Supporting service | Stores and manages Docker container images for EKS deployments.                                             |
 | [Elastic Load Balancing](https://aws.amazon.com/elasticloadbalancing/) (NLB) | Supporting service | Distributes incoming traffic across multiple targets in the EKS cluster.                                    |
 | [Amazon Elastic Block Store](https://aws.amazon.com/ebs) (EBS)               | Supporting service | Provides persistent block storage volumes for EC2 instances in the EKS cluster.                             |
+| [AWS Identity and Access Management](https://aws.amazon.com/iam/) (IAM)    | Supporting service   | Manages security permissions and access controls for the chatbot system, ensuring secure interaction with EKS clusters and AWS services.                              |
 | [AWS Key Management Service](https://aws.amazon.com/kms/) (KMS)              | Security service   | Manages encryption keys for securing data in EKS and other AWS services.                                    |
+| [AWS Lambda](https://aws.amazon.com/lambda/)                               | Optional Service     | Provides serverless compute for processing Slack webhooks and handling event-driven troubleshooting workflows when Slack integration is enabled.                        |
+
+
 
 ### Cost
 
 You are responsible for the cost of the AWS services used while running this guidance.
 As of February 2026, the cost for running this guidance with the default settings in the US West (Oregon) Region is
-approximately **$XXX.YY/month**.
+approximately **$457.72/month**.
 
 We recommend creating a [budget](https://alpha-docs-aws.amazon.com/awsaccountbilling/latest/aboutv2/budgets-create.html) through [AWS Cost Explorer](http://aws.amazon.com/aws-cost-management/aws-cost-explorer/) to help manage costs. Prices are subject to change. For full details, refer to the pricing webpage for each AWS service used in this guidance.
 
@@ -170,7 +178,12 @@ deployment as per the guidance. This **does not** factor any model deployments o
 | Elastic Load Balancer            | 1 NLB for workloads               | $16.46            |
 | Amazon VPC                       | Public IP addresses               | $3.65             |
 | AWS Key Management Service (KMS) | Keys and requests                 | $6.00             |
-| **TOTAL**                        |                                   | **$296.21/month** |
+| AWS Bedrock (Claude)             | 1M input tokens, 100K output tokens | $25.00         |
+| Amazon OpenSearch Service        | 3 m5.large.search instances         | $95.00         |
+| Amazon Kinesis Data Streams      | 2 shards, 10GB data ingestion       | $30.00         |
+| Amazon S3                        | 500GB storage, 10K requests         | $11.50         |
+| AWS Lambda                       | 1M invocations, 512MB memory        | $0.00          |
+| **TOTAL**                        |                                   | **$457.72/month** |
 
 For a more accurate estimate based on your specific configuration and usage patterns, we recommend using
 the [AWS Pricing Calculator](https://calculator.aws).
