@@ -1,10 +1,10 @@
 # Guidance for Troubleshooting of Amazon EKS using Agentic AI workflow on AWS
 
-This project provides two different approaches for troubleshooting EKS (Elastic Kubernetes Service) issues:
+This project provides an example of Agemtic AI approaches for troubleshooting EKS (Elastic Kubernetes Service) issues via ChatOps:
 
  **Strands-based AI Agentic workflow Troubleshooting**: An intelligent agent using AWS Strands Agent framework with EKS MCP server integration for real-time troubleshooting
 
-Both solutions are deployed using Terraform, which provisions the necessary AWS resources including EKS cluster, monitoring tools, and application-specific infrastructure.
+It can be deployed using Terraform, which provisions the necessary AWS resources including EKS cluster, monitoring tools, and application-specific infrastructure.
 
 ## Architecture
 
@@ -234,34 +234,15 @@ Workload Ready Cluster. Here are the key security components and considerations:
 - Regularly review and rotate IAM and Kubernetes RBAC permissions.
 
 ## Deployment Options
+{TODO} update tio live IG link when publishing
+
+Please see detailed [Implementation Guide](https://implementationguides.kits.eventoutfitters.aws.dev/tbst-eks-rag-1017/compute/troubleshooting-amazon-eks-using-rag-based-chatbot.html) for instruction for solution deployment, validation, basic troubleshooting and uninstallation options. 
+
+<!--
 
 ### Option 1: Strands-based Agentic AI Workflow Troubleshooting Deployment
 
 The agentic approach uses the AWS Strands Agent framework with EKS MCP server integration for intelligent, real-time troubleshooting.
-
-```mermaid
-graph LR
-    U[User] --> S[Slack Interface]
-    S --> OA[K8s Orchestrator Agent]
-    
-    OA --> MA[Memory Agent]
-    OA --> KS[K8s Specialist]
-    
-    MA --> S3V[S3 Vectors DB]
-    KS --> EKS[EKS MCP Server]
-    KS --> K8S[Local K8s Tools]
-    
-    EKS --> AWS[AWS EKS Cluster]
-    K8S --> KUBE[Kubernetes API]
-    
-    style U fill:#1976d2,color:#fff
-    style S fill:#f57c00,color:#fff
-    style OA fill:#ff6f00,color:#fff
-    style MA fill:#7b1fa2,color:#fff
-    style KS fill:#388e3c,color:#fff
-    style EKS fill:#d32f2f,color:#fff
-    style S3V fill:#9c27b0,color:#fff
-```
 
 #### Setup Steps
 
@@ -367,12 +348,6 @@ The agentic deployment will automatically:
 
 ## Testing
 
-<!--
-### RAG Deployment
-1. Deploy problematic pods: `./provision-delete-error-pods.sh -p db-migration`
-2. Access Gradio interface at `http://localhost:7860/`
-3. Query the chatbot about EKS issues
--->
 
 ### Strands Agentic AI Workflow
 See [Demo EKS Troubleshooting Script](/demo/demo-script.md) for complete testing instructions and example scenarios.
@@ -399,12 +374,6 @@ See [Demo EKS Troubleshooting Script](/demo/demo-script.md) for complete testing
 
 ## Architecture
 
-<!--
-### RAG Architecture
-- EKS Cluster with Fluent Bit → Kinesis → OpenSearch → Gradio Interface
-- Bedrock for AI-powered responses
--->
-
 ### Strands-based Agentic Architecture
 - Multi-agent system with EKS MCP integration
 - S3 Vectors for knowledge storage
@@ -418,13 +387,16 @@ See [Demo EKS Troubleshooting Script](/demo/demo-script.md) for complete testing
 - **Slack Integration**: Check bot tokens and permissions
 - **Pod Identity**: Ensure EKS Pod Identity Agent is enabled
 
+-->
+
 ## Acknowledgments
 
 This project uses:
-<!-- - [Gradio](https://www.gradio.app/) for the user interface -->
+
 - [Terraform AWS EKS Blueprints](https://github.com/aws-ia/terraform-aws-eks-blueprints) for infrastructure
 - [AWS Strands Agent Framework](https://github.com/aws/strands) for multi-agent orchestration (Agentic deployment)
 - [EKS MCP Server](https://github.com/aws/eks-mcp-server) for Kubernetes integration via Model Context Protocol (Agentic deployment)
+- [Amazon Bedrock](https://docs.aws.amazon.com/bedrock/latest/userguide/getting-started.html) for semantic vector matching and solution content validation
 
 ## Security
 
