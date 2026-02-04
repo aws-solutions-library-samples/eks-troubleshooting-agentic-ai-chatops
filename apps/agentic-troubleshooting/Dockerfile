@@ -21,6 +21,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY src/ ./src/
 COPY main.py .
+COPY memory_agent_main.py .
 
 # Create non-root user for security but keep uvx accessible
 RUN useradd -m -u 1000 agent && \
