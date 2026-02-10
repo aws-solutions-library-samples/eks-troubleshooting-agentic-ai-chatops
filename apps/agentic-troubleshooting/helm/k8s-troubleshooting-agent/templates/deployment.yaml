@@ -67,6 +67,9 @@ spec:
               value: {{ .Values.config.vectorBucket | quote }}
             - name: INDEX_NAME
               value: {{ .Values.config.indexName | quote }}
+            # Memory Agent A2A URL
+            - name: MEMORY_AGENT_SERVER_URL
+              value: "http://localhost:9000"
             - name: SLACK_BOT_TOKEN
               valueFrom:
                 secretKeyRef:
@@ -103,6 +106,46 @@ spec:
                 - -c
                 - "import sys; sys.exit(0)"
             initialDelaySeconds: 5
+            periodSeconds: 10
+        - name: memory-agent
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["python", "memory_agent_main.py"]
+          env:
+            - name: AWS_REGION
+              value: {{ .Values.config.awsRegion | quote }}
+            - name: BEDROCK_MODEL_ID
+              value: {{ .Values.config.bedrockModelId | quote }}
+            - name: LOG_LEVEL
+              value: {{ .Values.config.logLevel | quote }}
+            # Vector Storage Configuration
+            - name: VECTOR_BUCKET
+              value: {{ .Values.config.vectorBucket | quote }}
+            - name: INDEX_NAME
+              value: {{ .Values.config.indexName | quote }}
+          ports:
+            - name: a2a
+              containerPort: 9000
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 250m
+              memory: 256Mi
+            requests:
+              cpu: 50m
+              memory: 128Mi
+          livenessProbe:
+            tcpSocket:
+              port: 9000
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            failureThreshold: 3
+          readinessProbe:
+            tcpSocket:
+              port: 9000
+            initialDelaySeconds: 10
             periodSeconds: 10
       volumes:
         - name: kubeconfig-volume

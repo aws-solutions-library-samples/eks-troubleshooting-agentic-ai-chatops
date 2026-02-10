@@ -3,6 +3,8 @@
 ## 🎯 Demo Overview
 This demo showcases the evolution from basic Kubernetes tools to an intelligent multi-agent system with MCP integration and tribal knowledge storage.
 
+**Note**: This repository contains the complete implementation. The demo guide below shows the step-by-step evolution for presentation purposes.
+
 ---
 
 ## 📋 Demo Flow

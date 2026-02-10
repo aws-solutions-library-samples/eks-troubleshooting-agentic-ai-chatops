@@ -24,6 +24,9 @@ config:
   vectorBucket: "test-vector-s3-bucket-321"
   indexName: "k8s-troubleshooting"
   
+  # Memory Agent Configuration
+  memoryAgentServerUrl: "http://localhost:9000"
+  
   # EKS MCP settings
   eksMcp:
     enabled: true

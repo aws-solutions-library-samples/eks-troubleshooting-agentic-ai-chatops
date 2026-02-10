@@ -103,6 +103,10 @@ class Config:
     def ENABLE_MENTION_RESPONSES(self) -> bool:
         return os.getenv('ENABLE_MENTION_RESPONSES', 'true').lower() == 'true'
 
+    @property
+    def ENABLE_EKS_MCP(self) -> bool:
+        return os.getenv('ENABLE_EKS_MCP', 'false').lower() == 'true'
+
     # Langfuse Properties
     @property
     def ENABLE_LANGFUSE(self) -> bool:
