@@ -7,9 +7,9 @@ clusterName: ""  # Will be set from Terraform
 nodeClasses:
   - enabled: true
     name: "gpu-nodeclass"
-    amiFamily: "AL2"
+    amiFamily: "AL2023"
     amiSelectorTerms:
-      - name: "amazon-eks-gpu-node-1.31-*"
+      - name: "amazon-eks-node-al2023-x86_64-nvidia-1.34-*"
         owners: ["amazon"]
     blockDeviceMappings:
       - deviceName: "/dev/xvda"

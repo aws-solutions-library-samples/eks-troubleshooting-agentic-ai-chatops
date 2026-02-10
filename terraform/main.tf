@@ -1,5 +1,11 @@
 terraform {
+  required_version = ">= 1.5.7"
+  
   required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 6.15"
+    }
     kubectl = {
       source  = "alekc/kubectl"
       version = ">= 2.0.2"
@@ -93,11 +99,11 @@ data "aws_caller_identity" "current" {}
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "~> 20.11"
+  version = "~> 21.4"
 
-  cluster_name                   = local.name
-  cluster_version                = "1.31"
-  cluster_endpoint_public_access = true
+  name                           = local.name
+  kubernetes_version             = "1.34"
+  endpoint_public_access         = true
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
@@ -110,6 +116,21 @@ module "eks" {
       min_size       = 3
       max_size       = 3
       desired_size   = 3
+    }
+  }
+
+  addons = {
+    vpc-cni = {
+      most_recent              = true
+      before_compute           = true      
+    }
+    
+    coredns = {
+      most_recent = true
+    }
+    
+    kube-proxy = {
+      most_recent = true
     }
   }
 
@@ -153,9 +174,6 @@ module "eks_blueprints_addons" {
   oidc_provider_arn = module.eks.oidc_provider_arn
 
   eks_addons = {
-    coredns                = {}
-    vpc-cni                = {}
-    kube-proxy             = {}
     eks-pod-identity-agent = {}
   }
 
@@ -389,17 +407,15 @@ module "eks_blueprints_addons" {
 
 module "karpenter" {
   source  = "terraform-aws-modules/eks/aws//modules/karpenter"
-  version = "~> 20.24"
+  version = "~> 21.4"
 
   cluster_name          = module.eks.cluster_name
-  enable_v1_permissions = true
   namespace             = "kube-system"
 
   # Name needs to match role name passed to the EC2NodeClass
   node_iam_role_use_name_prefix   = false
   node_iam_role_name              = local.name
   create_pod_identity_association = true
-  enable_pod_identity             = true
 
   tags = local.tags
 }
