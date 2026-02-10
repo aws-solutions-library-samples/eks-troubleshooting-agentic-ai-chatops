@@ -136,10 +136,10 @@ def main():
     # Create A2A server
     a2a_server = A2AServer(agent=memory_server.agent)
     
-    print("Starting Memory Agent A2A Server on http://localhost:9000")
+    print("Starting Memory Agent A2A Server on http://0.0.0.0:9000")
     
-    # Start the server
-    a2a_server.serve()
+    # Start the server - bind to 0.0.0.0 for Kubernetes probes
+    a2a_server.serve(host="0.0.0.0", port=9000)
 
 if __name__ == "__main__":
     main()

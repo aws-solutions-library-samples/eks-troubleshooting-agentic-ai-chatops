@@ -137,17 +137,15 @@ spec:
               cpu: 50m
               memory: 128Mi
           livenessProbe:
-            httpGet:
-              path: /health
+            tcpSocket:
               port: 9000
             initialDelaySeconds: 30
             periodSeconds: 30
             failureThreshold: 3
           readinessProbe:
-            httpGet:
-              path: /health
+            tcpSocket:
               port: 9000
-            initialDelaySeconds: 5
+            initialDelaySeconds: 10
             periodSeconds: 10
       volumes:
         - name: kubeconfig-volume
