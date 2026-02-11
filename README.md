@@ -133,7 +133,7 @@ Before running this project, make sure you have the following tools installed:
 
 ## Plan your Deployment
 
-### AWS services in this Guidance
+### AWS Services in this Guidance
 
 | **AWS Service**                                                              | **Role**           | **Description**                                                                                             |
 |------------------------------------------------------------------------------|--------------------|-------------------------------------------------------------------------------------------------------------|
