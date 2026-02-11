@@ -19,9 +19,9 @@ _Figure 1: Guidance for Troubleshooting of Amazon EKS using Agentic AI workflow 
 
 ### Reference Architecture Steps
 
-1. **Log Collection and Streaming**: Amazon EKS cluster generates logs from various components (pods, services, nodes etc.) which are collected by Fluent Bit and streamed to Amazon Kinesis Data Streams for real-time processing.
+1. **Log Collection and Streaming**: Amazon EKS cluster generates logs from various components (pods, containers, services, nodes etc.) which are collected by Fluent Bit and streamed to Amazon Kinesis Data Streams for real-time processing.
 
-2. **Log Processing and Indexing**: Amazon Kinesis Data Streams processes the incoming log data and forwards it to Amazon OpenSearch for indexing and "knowldge base" data storage, enabling fast search and retrieval capabilities.
+2. **Log Processing and Indexing**: Amazon Kinesis Data Streams processes the incoming log data and forwards it to Amazon OpenSearch for indexing and "knowledge base" data storage, enabling fast search and retrieval capabilities.
 
 3. **Vector Storage and Embeddings**: Log data is processed through AWS Bedrock to generate embeddings, which are stored in Amazon S3 for semantic search capabilities and knowledge retrieval.
 
