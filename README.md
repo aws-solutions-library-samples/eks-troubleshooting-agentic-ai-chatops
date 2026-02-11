@@ -1,15 +1,17 @@
+>NOTE: for sample code for this [AWS Blog](https://aws.amazon.com/blogs/architecture/architecting-conversational-observability-for-cloud-applications/) please use the [code branch](https://github.com/aws-samples/sample-eks-troubleshooting-rag-chatbot/tree/blog) from this repository.
+This code branch is updated and is related to the AWS guidance below.
+
 # Guidance for Troubleshooting of Amazon EKS using Agentic AI workflow on AWS
 
-This project provides an example of Agemtic AI approaches for troubleshooting EKS (Elastic Kubernetes Service) issues via ChatOps:
+This guidance provides an example of Platform Engineering approach to troubleshooting Amazon EKS (Elastic Kubernetes Service) issues using Agentic AI workflow integrated with ChatOps via Slack
 
- **Strands-based AI Agentic workflow Troubleshooting**: An intelligent agent using AWS Strands Agent framework with EKS MCP server integration for real-time troubleshooting
+ **Strands-based AI Agentic workflow Troubleshooting**: An intelligent agent using AWS [Strands Agent framework](http://strandsagents.com/latest/) with [EKS MCP server](https://awslabs.github.io/mcp/servers/eks-mcp-server) integration for real-time troubleshooting
 
-It can be deployed using Terraform, which provisions the necessary AWS resources including EKS cluster, monitoring tools, and application-specific infrastructure.
+It can be deployed using [Terraform](https://developer.hashicorp.com/terraform), which provisions all necessary AWS resources including EKS cluster with compute plane, required add-ons, monitoring tools, and application-specific infrastructure.
 
 ## Architecture
 
 ### Reference Architecture - EKS Cluster
-<!--static/images/chatbot-architecture.jpg-->
 
 ![Reference Architecture Diagram](/static/images/EKS%20troubleshooting%20agentic%20AI%20diagram%201.png)
 
@@ -17,9 +19,9 @@ _Figure 1: Guidance for Troubleshooting of Amazon EKS using Agentic AI workflow 
 
 ### Reference Architecture Steps
 
-1. **Log Collection and Streaming**: Amazon EKS cluster generates logs from various components (pods, services, nodes) which are collected by Fluent Bit and streamed to Amazon Kinesis Data Streams for real-time processing.
+1. **Log Collection and Streaming**: Amazon EKS cluster generates logs from various components (pods, services, nodes etc.) which are collected by Fluent Bit and streamed to Amazon Kinesis Data Streams for real-time processing.
 
-2. **Log Processing and Indexing**: Amazon Kinesis Data Streams processes the incoming log data and forwards it to Amazon OpenSearch for indexing and storage, enabling fast search and retrieval capabilities.
+2. **Log Processing and Indexing**: Amazon Kinesis Data Streams processes the incoming log data and forwards it to Amazon OpenSearch for indexing and "knowldge base" data storage, enabling fast search and retrieval capabilities.
 
 3. **Vector Storage and Embeddings**: Log data is processed through AWS Bedrock to generate embeddings, which are stored in Amazon S3 for semantic search capabilities and knowledge retrieval.
 
@@ -31,27 +33,27 @@ _Figure 1: Guidance for Troubleshooting of Amazon EKS using Agentic AI workflow 
 
 7. **Security and Access Control**: AWS IAM and EKS Pod Identity ensure secure access to cluster resources while maintaining proper permissions and audit trails.
 
-### Agentic AI workflow Architecture
+### Agentic AI Workflow Architecture
 
 ![Agentic AI workflow Architecture Diagram](/static/images/EKS%20troubleshooting%20agentic%20AI%20diagram%202b.png)
 
 _Figure 2: Guidance for Troubleshooting of Amazon EKS using Agentic AI workflow on AWS - Troubleshooting Workflow_
 
-### Agentic AI workflow Architecture Steps
+### Agentic AI Workflow Architecture Steps
 
 1. **Setup** - Guidance workloads are deployed into an Amazon EKS cluster, configured for application readiness with compute plane managed by Karpenter auto-scaler.
 
-2. **User Interaction** - Users (DevOps engineers, SREs, developers) who encounter Kubernetes (K8s) issues send troubleshooting requests through designated Slack channel integrated with K8s Troubleshooting AI Agent. Its components are running as containers on the EKS deployed from previously built images hosted in Elastic Container registry (ECR)  via Helm charts that reference the services-built images
+2. **User Interaction** - Users (DevOps engineers, SREs, developers) who encounter Kubernetes (K8s) issues send troubleshooting requests through designated Slack channel integrated with K8s Troubleshooting AI Agent. Its components are running as containers on EKS cluster deployed from previously built images hosted in Elastic Container registry (ECR) via [Helm](https://helm.sh/) charts that reference the services-built images
 
-3. **Message Reception & Slack Integration** - Slack receives user messages via AWS Elastic Load Balancer and establishes a WebSocket connection (Socket Mode) to the Orchestrator agent running in the EKS cluster.
+3. **Message Reception & Slack Integration** - Slack receives user messages coming via AWS Elastic Load Balancer and establishes a WebSocket connection (Socket Mode) to the Orchestrator agent running in the EKS cluster.
 
-4. **Intelligent Message Classification & Orchestration** - Orchestrator agent receives users’ message and calls Nova Micro model via  Amazon Bedrock API to determine whether the message requires K8s troubleshooting. If an issue is classified as K8s-related, the Orchestrator agent initiates a workflow by delegating tasks to specialized agents while maintaining overall session context.
+4. **Intelligent Message Classification & Orchestration** - Orchestrator agent receives users’ message and calls [Nova Micro](https://docs.aws.amazon.com/ai/responsible-ai/nova-micro-lite-pro/overview.html) model via  Amazon Bedrock API to determine whether the message requires K8s troubleshooting. If an issue is classified as K8s-related, the Orchestrator agent initiates a workflow by delegating tasks to specialized agents while maintaining overall session context.
 
-5. **Historical Knowledge Retrieval** - Orchestrator agent invokes the Memory agent, which connects to Amazon S3 Vectors  based knowledge base to search for similar troubleshooting cases for precise issue classification
+5. **Historical Knowledge Retrieval** - Orchestrator agent invokes the Memory agent, which connects to Amazon S3 Vectors based knowledge base to search for similar troubleshooting cases for precise issue classification
 
-6. **Semantic Vector Matching** - The Memory agent invokes Titan Embeddings model via Amazon Bedrock API to generate semantic embeddings and perform vector similarity matching against the shared S3 Vectors knowledge base
+6. **Semantic Vector Matching** - The Memory agent invokes [Titan Embeddings](https://docs.aws.amazon.com/bedrock/latest/userguide/titan-embedding-models.html) model via Amazon Bedrock API to generate semantic embeddings and perform vector similarity matching against the shared S3 Vectors knowledge base
 
-7. **Real-Time Cluster Intelligence** - Orchestrator agent invokes the K8s Specialist agent, which utilizes the hosted [AWS EKS Model Context Protocol (MCP) Server](https://docs.aws.amazon.com/eks/latest/userguide/eks-mcp-introduction.html) to execute commands against the EKS API Server. The MCP Server gathers real-time cluster state, pod logs, events, and resource metrics to better “understand” the current problem context.
+7. **Real-Time Cluster Intelligence** - Orchestrator agent invokes the K8s Specialist agent, which utilizes the hosted [AWS EKS Model Context Protocol (MCP) Server](https://docs.aws.amazon.com/eks/latest/userguide/eks-mcp-introduction.html) to execute commands against the EKS API Server. The Client of MCP Server gathers real-time cluster state, pod logs, events, and resource metrics to better “understand” the current problem context.
 
 8. **Intelligent Issue Analysis** - K8s Specialist agent sends the collected cluster data to Anthropic Claude model via Amazon Bedrock for intelligent issue analysis and resolution generation. 
 
@@ -82,21 +84,19 @@ _Figure 2: Guidance for Troubleshooting of Amazon EKS using Agentic AI workflow 
 
 Before running this project, make sure you have the following tools installed:
 
-- [Terraform](https://www.terraform.io/downloads.html)
+- [Terraform CLI](https://www.terraform.io/downloads.html)
 - [AWS CLI](https://aws.amazon.com/cli/)
 - [Python 3.8+](https://www.python.org/downloads/)
-- [Docker](https://www.docker.com/) (for agentic deployment)
-- [Helm](https://helm.sh/) (for agentic deployment)
+- [Docker](https://www.docker.com/) (for agentic application deployment)
+- [Helm](https://helm.sh/) (for agentic application deployment)
 - [Kubectl](https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html) (for K8s CLI commands)
 
 ### Slack Configuration (Required)
 
-#### For Both Deployments:
 1. **Slack Webhook** (Alert Manager notifications):
    - Create incoming webhook in your Slack workspace
    - Note the webhook URL and target channel name
 
-#### For Strands Agentic Deployment Only:
 2. **Slack Bot Configuration**:
    - Create a Slack app with the following **Bot Token Scopes**:
      - `app_mentions:read` - View messages mentioning the bot
@@ -129,7 +129,7 @@ Before running this project, make sure you have the following tools installed:
  
  ![Sample Slack Application adding to Channel](static/images/slack_adding_app_to_channel.png)
  
- _Figure 5: Guidance for Troubleshooting of Amazon EKS using Agentic AI workflow on AWS - Adding Sample app  to Channel_
+ _Figure 5: Guidance for Troubleshooting of Amazon EKS using Agentic AI workflow on AWS - Adding Sample app to Slack Channel_
 
 ## Plan your Deployment
 
@@ -150,7 +150,6 @@ Before running this project, make sure you have the following tools installed:
 | [AWS Identity and Access Management](https://aws.amazon.com/iam/) (IAM)    | Supporting service   | Manages security permissions and access controls for the chatbot system, ensuring secure interaction with EKS clusters and AWS services.                              |
 | [AWS Key Management Service](https://aws.amazon.com/kms/) (KMS)              | Security service   | Manages encryption keys for securing data in EKS and other AWS services.                                    |
 | [AWS Lambda](https://aws.amazon.com/lambda/)                               | Optional Service     | Provides serverless compute for processing Slack webhooks and handling event-driven troubleshooting workflows when Slack integration is enabled.                        |
-
 
 
 ### Cost
@@ -176,7 +175,7 @@ deployment as per the guidance. This **does not** factor any model deployments o
 | Elastic Load Balancer            | 1 NLB for workloads               | $16.46            |
 | Amazon VPC                       | Public IP addresses               | $3.65             |
 | AWS Key Management Service (KMS) | Keys and requests                 | $6.00             |
-| AWS Bedrock (Claude)             | 1M input tokens, 100K output tokens | $25.00         |
+| AWS Bedrock (Titan)             | 1M input tokens, 100K output tokens | $25.00         |
 | Amazon OpenSearch Service        | 3 m5.large.search instances         | $95.00         |
 | Amazon Kinesis Data Streams      | 2 shards, 10GB data ingestion       | $30.00         |
 | Amazon S3                        | 500GB storage, 10K requests         | $11.50         |
@@ -238,165 +237,15 @@ Workload Ready Cluster. Here are the key security components and considerations:
 
 Please see detailed [Implementation Guide](https://implementationguides.kits.eventoutfitters.aws.dev/tbst-eks-rag-1017/compute/troubleshooting-amazon-eks-using-rag-based-chatbot.html) for instruction for solution deployment, validation, basic troubleshooting and uninstallation options. 
 
-<!--
-
-### Option 1: Strands-based Agentic AI Workflow Troubleshooting Deployment
-
-The agentic approach uses the AWS Strands Agent framework with EKS MCP server integration for intelligent, real-time troubleshooting.
-
-#### Setup Steps
-
-1. **Set your AWS region:**
-   ```bash
-   export AWS_REGION="us-east-1"  # Change to your preferred region
-   ```
-
-2. **Create ECR repository manually:**
-   ```bash
-   # Create ECR repository
-   aws ecr create-repository --repository-name eks-llm-troubleshooting-agentic-agent --region $AWS_REGION
-   
-   # Get the repository URI
-   export ECR_REPO_URL=$(aws ecr describe-repositories --repository-names eks-llm-troubleshooting-agentic-agent --region $AWS_REGION --query 'repositories[0].repositoryUri' --output text)
-   echo "ECR Repository URL: $ECR_REPO_URL"
-   ```
-
-3. **Create S3 vector bucket and index:**
-   ```bash
-   # Create S3 vector bucket with unique name
-   export VECTOR_BUCKET="eks-llm-troubleshooting-vector-storage-$(date +%s)"
-   aws s3vectors create-vector-bucket \
-     --vector-bucket-name $VECTOR_BUCKET \
-     --region $AWS_REGION
-   
-   # Create S3 Vectors index with 1024 dimensions
-   aws s3vectors create-index \
-     --vector-bucket-name $VECTOR_BUCKET \
-     --index-name "k8s-troubleshooting" \
-     --dimension 1024 \
-     --data-type float32 \
-     --distance-metric cosine \
-     --region $AWS_REGION
-   
-   echo "Vector bucket: $VECTOR_BUCKET"
-   echo "Index name: k8s-troubleshooting"
-   ```
-
-4. **Build and push the Docker images for Agents :**
-   ```bash
-   cd apps/agentic-troubleshooting/
-   
-   # Login to ECR
-   aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO_URL
-   
-   # Build and tag the image
-   docker build --platform linux/amd64 -t $ECR_REPO_URL .
-   
-   # Push to ECR
-   docker push $ECR_REPO_URL
-   ```
-
-5. **Configure Terraform variables:**
-   Create `terraform/terraform.tfvars` file (replace with your actual values):
-   ```hcl
-   deployment_type = "agentic"
-   agentic_image_repository = "your-account.dkr.ecr.us-east-1.amazonaws.com/eks-llm-troubleshooting-agentic-agent"
-   agentic_image_tag = "latest"
-   slack_webhook_url = "https://hooks.slack.com/services/[YOUR-WEBHOOK]"
-   slack_channel_name = "alert-manager-alerts"
-   slack_bot_token = "xoxb-your-bot-token"
-   slack_app_token = "xapp-your-app-token"
-   slack_signing_secret = "your-signing-secret"
-   bedrock_model_id = "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
-   vector_bucket_name = "eks-llm-troubleshooting-vector-storage-1234567890"  # Use the bucket created above
-   vector_index_name = "k8s-troubleshooting"
-   ```
-
-6. **Deploy infrastructure:**
-   ```bash
-   cd terraform/
-   terraform init
-   terraform apply -auto-approve
-   ```
-
-The agentic deployment will automatically:
-- Create IAM roles with EKS MCP permissions
-- Set up Pod Identity associations
-- Deploy the Helm chart with the troubleshooting agent
-- Configure Slack integration
-
-
-## Key Features
-
-### Strands-based Agentic AI workflow Troubleshooting
-- Multi-agent orchestration with EKS MCP integration
-- S3 Vectors storage for tribal knowledge
-- Slack bot integration with Pod Identity security
-- Real-time cluster monitoring and troubleshooting
-
-## Configuration
-
-### Terraform Variables
-- **deployment_type**: `"agentic"` (default) or `"rag"` 
-- **name**: Project name (default: `"eks-llm-troubleshooting"`)
-- **slack_webhook_url**: Slack webhook for alerts (both deployments)
-- **slack_channel_name**: Slack channel name (both deployments)
-- **agentic_image_repository**: ECR repository for agent image (Agentic only)
-- **slack_bot_token**: Slack bot token (Agentic only)
-- **bedrock_model_id**: Bedrock model identifier (Agentic only)
-- **vector_bucket_name**: S3 vector bucket name (Agentic only)
-
-## Testing
-
-
-### Strands Agentic AI Workflow
-See [Demo EKS Troubleshooting Script](/demo/demo-script.md) for complete testing instructions and example scenarios.
-
-<TODO> Add instructions for testing Slack based ChatOps scenario with Agentic AI workflow.
-
-## Cleanup
-
-1. **Destroy infrastructure:**
-   ```bash
-   cd terraform/
-   terraform destroy --auto-approve
-   ```
-
-2. **Clean up additional resources** (Agentic only):
-   ```bash
-   # Delete ECR repository
-   aws ecr delete-repository --repository-name eks-llm-troubleshooting-agentic-agent --force --region $AWS_REGION
-   
-   # Delete S3 vector bucket (if created)
-   aws s3vectors delete-index --vector-bucket-name $VECTOR_BUCKET --index-name k8s-troubleshooting --region $AWS_REGION
-   aws s3vectors delete-vector-bucket --vector-bucket-name $VECTOR_BUCKET --region $AWS_REGION
-   ```
-
-## Architecture
-
-### Strands-based Agentic Architecture
-- Multi-agent system with EKS MCP integration
-- S3 Vectors for knowledge storage
-- Slack bot with Pod Identity security
-
-## Troubleshooting
-
-### Common Issues
-- **Access Denied (Bedrock)**: Ensure your AWS account has access to the specified Bedrock model
-- **Image Pull Errors**: Verify ECR repository exists and credentials are correct
-- **Slack Integration**: Check bot tokens and permissions
-- **Pod Identity**: Ensure EKS Pod Identity Agent is enabled
-
--->
-
-## Acknowledgments
+## References
 
 This project uses:
 
 - [Terraform AWS EKS Blueprints](https://github.com/aws-ia/terraform-aws-eks-blueprints) for infrastructure
 - [AWS Strands Agent Framework](https://github.com/aws/strands) for multi-agent orchestration (Agentic deployment)
 - [EKS MCP Server](https://github.com/aws/eks-mcp-server) for Kubernetes integration via Model Context Protocol (Agentic deployment)
-- [Amazon Bedrock](https://docs.aws.amazon.com/bedrock/latest/userguide/getting-started.html) for semantic vector matching and solution content validation
+- [Amazon Bedrock](https://docs.aws.amazon.com/bedrock/latest/userguide/getting-started.html) model hosting for semantic vector matching and solution content validation
+- [Slack](https://slack.com/) communications platform
 
 ## Security
 
