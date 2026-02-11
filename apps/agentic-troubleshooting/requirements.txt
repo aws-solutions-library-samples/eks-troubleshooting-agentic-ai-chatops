@@ -1,5 +1,7 @@
-# Core framework
+# Core frameworks
 strands-agents>=1.1.0
+strands-agents[a2a]
+strands-agents[otel]
 strands-agents-tools>=0.2.6
 
 # MCP support
@@ -15,3 +17,7 @@ kubernetes>=28.1.0
 
 # Utilities
 python-dotenv>=1.0.0
+
+# Dashboard
+streamlit>=1.28.0
+pandas>=2.0.0

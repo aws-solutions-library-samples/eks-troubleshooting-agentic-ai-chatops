@@ -3,7 +3,7 @@
 # IAM policy for EKS MCP server
 resource "aws_iam_policy" "eks_mcp_policy" {
   count = var.deployment_type == "agentic" ? 1 : 0
-  
+
   name        = "${local.name}-eks-mcp-policy"
   description = "IAM policy for EKS MCP server access"
 
@@ -187,34 +187,37 @@ resource "helm_release" "agentic_agent" {
         tag        = var.agentic_image_tag
         pullPolicy = "Always"
       }
-      
+
       serviceAccount = {
         create = true
         name   = "k8s-troubleshooting-agent"
       }
-      
+
       config = {
-        clusterName     = module.eks.cluster_name
+        clusterName    = module.eks.cluster_name
         awsRegion      = local.region
         bedrockModelId = var.bedrock_model_id
         logLevel       = "INFO"
-        
+
         # Vector Storage Configuration
         vectorBucket = var.vector_bucket_name
         indexName    = var.vector_index_name
-        
+
+        # Memory Agent Configuration
+        memoryAgentServerUrl = "http://localhost:9000"
+
         eksMcp = {
           enabled    = true
           allowWrite = true
         }
-        
+
         slack = {
           botToken      = var.slack_bot_token
           appToken      = var.slack_app_token
           signingSecret = var.slack_signing_secret
         }
       }
-      
+
       secrets = {
         slack = {
           botToken      = var.slack_bot_token
@@ -222,7 +225,7 @@ resource "helm_release" "agentic_agent" {
           signingSecret = var.slack_signing_secret
         }
       }
-      
+
       resources = {
         limits = {
           cpu    = "500m"
@@ -233,7 +236,7 @@ resource "helm_release" "agentic_agent" {
           memory = "256Mi"
         }
       }
-      
+
       rbac = {
         create = true
         rules = [

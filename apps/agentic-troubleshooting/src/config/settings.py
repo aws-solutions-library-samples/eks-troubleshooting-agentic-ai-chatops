@@ -33,6 +33,10 @@ class Config:
         return os.getenv('CLUSTER_NAME', 'eks-cluster')
     
     @property
+    def MEMORY_AGENT_SERVER_URL(self) -> str:
+        return os.getenv('MEMORY_AGENT_SERVER_URL', 'http://127.0.0.1:9000')
+    
+    @property
     def SLACK_BOT_TOKEN(self) -> str:
         return os.getenv('SLACK_BOT_TOKEN', '')
     
@@ -98,23 +102,27 @@ class Config:
     @property
     def ENABLE_MENTION_RESPONSES(self) -> bool:
         return os.getenv('ENABLE_MENTION_RESPONSES', 'true').lower() == 'true'
-    
+
     @property
     def ENABLE_EKS_MCP(self) -> bool:
         return os.getenv('ENABLE_EKS_MCP', 'false').lower() == 'true'
-    
-    @property
-    def EKS_MCP_ALLOW_WRITE(self) -> bool:
-        return os.getenv('EKS_MCP_ALLOW_WRITE', 'false').lower() == 'true'
-    
-    @property
-    def VECTOR_BUCKET(self) -> str:
-        return os.getenv('VECTOR_BUCKET', 'test-vector-s3-bucket-321')
-    
-    @property
-    def INDEX_NAME(self) -> str:
-        return os.getenv('INDEX_NAME', 'k8s-troubleshooting')
 
+    # Langfuse Properties
+    @property
+    def ENABLE_LANGFUSE(self) -> bool:
+        return os.getenv('ENABLE_LANGFUSE', 'false').lower() == 'true'
+
+    @property
+    def LANGFUSE_SECRET_KEY(self) -> str:
+        return os.getenv('LANGFUSE_SECRET_KEY', '')
+
+    @property
+    def LANGFUSE_PUBLIC_KEY(self) -> str:
+        return os.getenv('LANGFUSE_PUBLIC_KEY', '')
+
+    @property
+    def LANGFUSE_HOST(self) -> str:
+        return os.getenv('LANGFUSE_HOST', 'http://localhost:3000')
 
 # Create a singleton instance for use throughout the app
 Config = Config()
