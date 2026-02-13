@@ -1,4 +1,4 @@
->NOTE: for sample code for this [AWS Blog](https://aws.amazon.com/blogs/architecture/architecting-conversational-observability-for-cloud-applications/) please use the [code branch](https://github.com/aws-samples/sample-eks-troubleshooting-rag-chatbot/tree/blog) from this repository.
+>NOTE: for sample code for this [AWS Blog](https://aws.amazon.com/blogs/architecture/architecting-conversational-observability-for-cloud-applications/) please use the [code branch](https://github.com/aws-solutions-library-samples/sample-eks-troubleshooting-rag-chatbot/tree/blog) from this repository.
 This code branch is updated and is related to the AWS guidance below.
 
 # Guidance for Troubleshooting of Amazon EKS using Agentic AI workflow on AWS
@@ -150,7 +150,6 @@ Before running this project, make sure you have the following tools installed:
 | [AWS Identity and Access Management](https://aws.amazon.com/iam/) (IAM)    | Supporting service   | Manages security permissions and access controls for the chatbot system, ensuring secure interaction with EKS clusters and AWS services.                              |
 | [AWS Key Management Service](https://aws.amazon.com/kms/) (KMS)              | Security service   | Manages encryption keys for securing data in EKS and other AWS services.                                    |
 | [AWS Lambda](https://aws.amazon.com/lambda/)                               | Optional Service     | Provides serverless compute for processing Slack webhooks and handling event-driven troubleshooting workflows when Slack integration is enabled.                        |
-
 
 ### Cost
 
