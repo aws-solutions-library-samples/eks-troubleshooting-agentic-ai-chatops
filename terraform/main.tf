@@ -644,3 +644,29 @@ resource "helm_release" "nvidia_device_plugin" {
 
   depends_on = [module.eks, helm_release.karpenter]
 }
+
+################################################################################
+# Adding guidance solution ID via AWS CloudFormation resource
+################################################################################
+resource "random_bytes" "this" {
+  count  = 1
+  length = 2
+}
+
+resource "aws_cloudformation_stack" "guidance_deployment_metrics" {
+  count = 1
+
+  name          = "tracking-stack-${random_bytes.this[0].hex}"
+  on_failure    = "DO_NOTHING"
+  template_body = <<STACK
+    {
+        "AWSTemplateFormatVersion": "2010-09-09",
+        "Description": "(SO9669) This is a CFN stack for Solution Guidance Troubleshooting Amazon EKS using Agentic AI workflow on AWS",
+        "Resources": {
+            "EmptyResource": {
+                "Type": "AWS::CloudFormation::WaitConditionHandle"
+            }
+        }
+    }
+    STACK
+}
