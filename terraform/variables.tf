@@ -21,51 +21,51 @@ variable "opensearch_collection_name" {
 }
 
 variable "deployment_type" {
-  description = "Type of deployment: 'rag' for RAG-based chatbot or 'agentic' for agentic troubleshooting"
+  description = "Type of deployment: 'agentic' for Agentic AI troubleshooting or 'rag' for RAG-based chatbot (deprecated)"
   type        = string
-  default     = "rag"
+  default     = "agentic"
   validation {
     condition     = contains(["rag", "agentic"], var.deployment_type)
-    error_message = "Deployment type must be either 'rag' or 'agentic'."
+    error_message = "Deployment type must be either 'agentic' or 'rag' (deprecated)."
   }
 }
 
 # Agentic deployment specific variables
 variable "agentic_image_repository" {
-  description = "ECR repository for the agentic troubleshooting agent image"
+  description = "ECR repository for the Agentic AI troubleshooting agent image"
   type        = string
   default     = ""
 }
 
 variable "agentic_image_tag" {
-  description = "Tag for the agentic troubleshooting agent image"
+  description = "Tag for the Agentic AI troubleshooting agent image"
   type        = string
   default     = "latest"
 }
 
 variable "slack_bot_token" {
-  description = "Slack bot token for agentic deployment"
+  description = "Slack bot token for Agentic AI deployment"
   type        = string
   default     = ""
   sensitive   = true
 }
 
 variable "slack_app_token" {
-  description = "Slack app token for agentic deployment"
+  description = "Slack app token for Agentic AI deployment"
   type        = string
   default     = ""
   sensitive   = true
 }
 
 variable "slack_signing_secret" {
-  description = "Slack signing secret for agentic deployment"
+  description = "Slack signing secret for Agentic AI deployment"
   type        = string
   default     = ""
   sensitive   = true
 }
 
 variable "bedrock_model_id" {
-  description = "Bedrock model ID for agentic deployment"
+  description = "Bedrock model ID for Agentic AI deployment"
   type        = string
   default     = "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
 }
