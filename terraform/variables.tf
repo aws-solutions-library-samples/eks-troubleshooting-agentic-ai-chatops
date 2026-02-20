@@ -1,36 +1,22 @@
 variable "name" {
-  default = "eks-llm-troubleshooting"
+  description = "Name prefix for all resources"
+  type        = string
+  default     = "eks-agentic-troubleshooting"
 }
 
 variable "slack_webhook_url" {
-  description = "Slack webhook URL for Prometheus AlertManager notifications (used by both deployments)"
+  description = "Slack webhook URL for Prometheus AlertManager notifications"
   type        = string
   default     = ""
 }
 
 variable "slack_channel_name" {
-  description = "Slack channel name for Prometheus AlertManager notifications (used by both deployments)"
+  description = "Slack channel name for Prometheus AlertManager notifications"
   type        = string
   default     = ""
 }
 
-variable "opensearch_collection_name" {
-  description = "Name for the OpenSearch Serverless collection"
-  type        = string
-  default     = "vector-col"
-}
-
-variable "deployment_type" {
-  description = "Type of deployment: 'agentic' for Agentic AI troubleshooting or 'rag' for RAG-based chatbot (deprecated)"
-  type        = string
-  default     = "agentic"
-  validation {
-    condition     = contains(["rag", "agentic"], var.deployment_type)
-    error_message = "Deployment type must be either 'agentic' or 'rag' (deprecated)."
-  }
-}
-
-# Agentic deployment specific variables
+# Agentic deployment variables
 variable "agentic_image_repository" {
   description = "ECR repository for the Agentic AI troubleshooting agent image"
   type        = string
@@ -51,21 +37,21 @@ variable "slack_bot_token" {
 }
 
 variable "slack_app_token" {
-  description = "Slack app token for Agentic AI deployment"
+  description = "Slack app token for Socket Mode"
   type        = string
   default     = ""
   sensitive   = true
 }
 
 variable "slack_signing_secret" {
-  description = "Slack signing secret for Agentic AI deployment"
+  description = "Slack signing secret for request verification"
   type        = string
   default     = ""
   sensitive   = true
 }
 
 variable "bedrock_model_id" {
-  description = "Bedrock model ID for Agentic AI deployment"
+  description = "Amazon Bedrock model ID for AI agent"
   type        = string
   default     = "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
 }
@@ -77,7 +63,7 @@ variable "vector_bucket_name" {
 }
 
 variable "vector_index_name" {
-  description = "S3 Vectors index name for troubleshooting knowledge"
+  description = "S3 Vectors index name for troubleshooting knowledge base"
   type        = string
   default     = "k8s-troubleshooting"
 }

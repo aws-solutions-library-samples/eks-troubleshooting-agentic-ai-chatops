@@ -1,36 +1,7 @@
-output "configure_kubectl" {
-  description = "Configure kubectl: make sure you're logged in with the correct AWS profile and run the following command to update your kubeconfig"
-  value       = "aws eks --region ${local.region} update-kubeconfig --name ${module.eks.cluster_name}"
-}
+################################################################################
+# Cluster Outputs
+################################################################################
 
-output "deployment_type" {
-  description = "The type of deployment that was created"
-  value       = var.deployment_type
-}
-
-# RAG deployment outputs
-output "opensearch_collection_endpoint" {
-  description = "OpenSearch Serverless collection endpoint (RAG deployment only)"
-  value       = var.deployment_type == "rag" ? module.ingestion_pipeline[0].collection_endpoint : null
-}
-
-output "chatbot_ecr_repository" {
-  description = "ECR repository for the RAG chatbot (RAG deployment only)"
-  value       = var.deployment_type == "rag" ? module.agentic_chatbot[0].chatbot_ecr_repo : null
-}
-
-# Agentic deployment outputs
-output "agentic_agent_role_arn" {
-  description = "IAM role ARN for the agentic troubleshooting agent (Agentic deployment only)"
-  value       = var.deployment_type == "agentic" ? aws_iam_role.agentic_agent_role[0].arn : null
-}
-
-output "agentic_agent_service_account" {
-  description = "Kubernetes service account for the agentic agent (Agentic deployment only)"
-  value       = var.deployment_type == "agentic" ? "k8s-troubleshooting-agent" : null
-}
-
-# Common outputs
 output "cluster_name" {
   description = "EKS cluster name"
   value       = module.eks.cluster_name
@@ -41,7 +12,64 @@ output "cluster_endpoint" {
   value       = module.eks.cluster_endpoint
 }
 
+output "cluster_security_group_id" {
+  description = "Security group ID attached to the EKS cluster"
+  value       = module.eks.cluster_security_group_id
+}
+
+output "cluster_oidc_provider_arn" {
+  description = "OIDC provider ARN for the EKS cluster"
+  value       = module.eks.oidc_provider_arn
+}
+
 output "region" {
   description = "AWS region"
   value       = local.region
+}
+
+################################################################################
+# VPC Outputs
+################################################################################
+
+output "vpc_id" {
+  description = "VPC ID"
+  value       = module.vpc.vpc_id
+}
+
+output "private_subnets" {
+  description = "Private subnet IDs"
+  value       = module.vpc.private_subnets
+}
+
+output "public_subnets" {
+  description = "Public subnet IDs"
+  value       = module.vpc.public_subnets
+}
+
+################################################################################
+# Agentic Agent Outputs
+################################################################################
+
+output "agentic_agent_role_arn" {
+  description = "IAM role ARN for the agentic troubleshooting agent"
+  value       = aws_iam_role.agentic_agent_role.arn
+}
+
+output "agentic_agent_service_account" {
+  description = "Kubernetes service account name for the agentic agent"
+  value       = "k8s-troubleshooting-agent"
+}
+
+################################################################################
+# Configuration Commands
+################################################################################
+
+output "configure_kubectl" {
+  description = "Command to configure kubectl"
+  value       = "aws eks update-kubeconfig --region ${local.region} --name ${module.eks.cluster_name}"
+}
+
+output "helm_status_command" {
+  description = "Command to check agentic agent deployment status"
+  value       = "helm status k8s-troubleshooting-agent -n default"
 }

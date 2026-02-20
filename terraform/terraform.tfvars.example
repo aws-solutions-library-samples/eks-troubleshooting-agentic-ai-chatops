@@ -1,22 +1,26 @@
-# Example Terraform variables file
-# Copy this to terraform.tfvars and update with your values
+# EKS Cluster Configuration
+name = "eks-agentic-troubleshooting"
 
-# Deployment type: "rag" for RAG-based chatbot or "agentic" for agentic troubleshooting
-deployment_type = "rag"
+# Slack Configuration for AlertManager
+slack_webhook_url  = "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+slack_channel_name = "#alerts"
 
-# Slack configuration (used by both deployments)
-slack_webhook_url = "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
-slack_channel_name = "alert-manager-alerts"
+# Agentic Agent Configuration
+# Replace with your ECR repository URL after running install.sh or creating it manually
+agentic_image_repository = "123456789012.dkr.ecr.us-east-1.amazonaws.com/eks-agentic-troubleshooting-agent"
+agentic_image_tag        = "latest"
 
-# OpenSearch configuration (RAG deployment only)
-opensearch_collection_name = "vector-col"
+# Slack Bot Configuration
+# Get these from your Slack app configuration
+slack_bot_token      = "xoxb-your-bot-token"
+slack_app_token      = "xapp-your-app-token"
+slack_signing_secret = "your-signing-secret"
 
-# Agentic deployment specific variables (only needed when deployment_type = "agentic")
-# agentic_image_repository = "your-account.dkr.ecr.us-east-1.amazonaws.com/eks-llm-troubleshooting-agentic-agent"
-# agentic_image_tag = "latest"
-# slack_bot_token = "xoxb-your-bot-token"
-# slack_app_token = "xapp-your-app-token"
-# slack_signing_secret = "your-signing-secret"
-# bedrock_model_id = "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
-# vector_bucket_name = "eks-llm-troubleshooting-vector-storage-1234567890"
-# vector_index_name = "k8s-troubleshooting"
+# Amazon Bedrock Configuration
+# Default model for agentic troubleshooting
+bedrock_model_id = "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
+
+# S3 Vectors Configuration
+# Replace with your S3 vector bucket name after creating it
+vector_bucket_name = "eks-troubleshooting-vectors-1234567890"
+vector_index_name  = "k8s-troubleshooting"
