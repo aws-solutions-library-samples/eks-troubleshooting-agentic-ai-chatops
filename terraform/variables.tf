@@ -18,19 +18,19 @@ variable "slack_channel_name" {
 
 # Agentic deployment variables
 variable "agentic_image_repository" {
-  description = "ECR repository for the agentic troubleshooting agent image"
+  description = "ECR repository for the Agentic AI troubleshooting agent image"
   type        = string
   default     = ""
 }
 
 variable "agentic_image_tag" {
-  description = "Tag for the agentic troubleshooting agent image"
+  description = "Tag for the Agentic AI troubleshooting agent image"
   type        = string
   default     = "latest"
 }
 
 variable "slack_bot_token" {
-  description = "Slack bot token for ChatOps integration"
+  description = "Slack bot token for agentic deployment"
   type        = string
   default     = ""
   sensitive   = true
