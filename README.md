@@ -1,4 +1,4 @@
->NOTE: for sample code for this [AWS Blog](https://aws.amazon.com/blogs/architecture/architecting-conversational-observability-for-cloud-applications/) please use the [code branch](https://github.com/aws-solutions-library-samples/sample-eks-troubleshooting-rag-chatbot/tree/blog) from this repository.
+>NOTE: for sample code for this [AWS Blog](https://aws.amazon.com/blogs/architecture/architecting-conversational-observability-for-cloud-applications/) please use the [code branch](https://github.com/aws-solutions-library-samples/eks-troubleshooting-agentic-ai-chatops/tree/blog) from this repository.
 This code branch is updated and is related to the AWS guidance below.
 
 # Guidance for Troubleshooting of Amazon EKS using Agentic AI workflow on AWS
@@ -226,19 +226,18 @@ Workload Ready Cluster. Here are the key security components and considerations:
 - Regularly review and rotate IAM and Kubernetes RBAC permissions.
 
 ## Deployment Options
-{TODO} update to live IG link when publishing
 
-Please see detailed [Implementation Guide](https://implementationguides.kits.eventoutfitters.aws.dev/tbst-eks-rag-1017/compute/troubleshooting-amazon-eks-using-rag-based-chatbot.html) for instruction for solution deployment, validation, basic troubleshooting and uninstallation options. 
+Please see detailed [Implementation Guide](https://aws-solutions-library-samples.github.io/compute/troubleshooting-amazon-eks-using-agentic-ai-workflow-on-aws.html) for instructions for guidance deployment, validation, basic troubleshooting and uninstallation options. 
 
 ## References
 
-This project uses:
+This guidance uses:
 
 - [Terraform AWS EKS Blueprints](https://github.com/aws-ia/terraform-aws-eks-blueprints) for infrastructure
 - [AWS Strands Agent Framework](https://github.com/aws/strands) for multi-agent orchestration (Agentic deployment)
 - [EKS MCP Server](https://github.com/aws/eks-mcp-server) for Kubernetes integration via Model Context Protocol (Agentic deployment)
 - [Amazon Bedrock](https://docs.aws.amazon.com/bedrock/latest/userguide/getting-started.html) model hosting for semantic vector matching and solution content validation
-- [Slack](https://slack.com/) communications platform
+- [Slack](https://slack.com/) enterprise communications platform
 
 ## Security
 
