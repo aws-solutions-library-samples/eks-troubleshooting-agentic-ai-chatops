@@ -30,7 +30,7 @@ variable "agentic_image_tag" {
 }
 
 variable "slack_bot_token" {
-  description = "Slack bot token for agentic deployment"
+  description = "Slack bot token for Agentic AI deployment"
   type        = string
   default     = ""
   sensitive   = true
