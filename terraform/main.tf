@@ -8,8 +8,13 @@ terraform {
 }
 
 locals {
+<<<<<<< HEAD
   name     = var.name
   region   = "us-east-1"
+=======
+  name   = var.name
+  region = "us-east-1"
+>>>>>>> 9f0f91f (Cleaned up not needed resources from RAG previous implementation)
   vpc_cidr = "10.0.0.0/16"
   azs      = slice(data.aws_availability_zones.available.names, 0, 3)
 
@@ -35,7 +40,11 @@ provider "kubernetes" {
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"
     command     = "aws"
+<<<<<<< HEAD
     args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
+=======
+    args = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
+>>>>>>> 9f0f91f (Cleaned up not needed resources from RAG previous implementation)
   }
 }
 
@@ -47,7 +56,11 @@ provider "helm" {
     exec {
       api_version = "client.authentication.k8s.io/v1beta1"
       command     = "aws"
+<<<<<<< HEAD
       args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
+=======
+      args = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
+>>>>>>> 9f0f91f (Cleaned up not needed resources from RAG previous implementation)
     }
   }
   registry {
@@ -246,7 +259,11 @@ module "vpc" {
 
   private_subnet_tags = {
     "kubernetes.io/role/internal-elb" = 1
+<<<<<<< HEAD
     "karpenter.sh/discovery"          = local.name
+=======
+    "karpenter.sh/discovery" = local.name
+>>>>>>> 9f0f91f (Cleaned up not needed resources from RAG previous implementation)
   }
 
   tags = local.tags
@@ -262,7 +279,11 @@ resource "helm_release" "karpenter_default" {
   namespace  = "default"
   wait       = false
   depends_on = [module.eks, module.karpenter, helm_release.karpenter]
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> 9f0f91f (Cleaned up not needed resources from RAG previous implementation)
   set {
     name  = "clusterName"
     value = local.name
