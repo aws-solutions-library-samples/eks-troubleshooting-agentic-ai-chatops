@@ -93,11 +93,11 @@ class SlackHandler:
                         logger.info(f"Message is in active thread: {thread_key}")
                 
                 # Check if agent should respond (pass thread info to avoid unnecessary classification)
-                should_respond = self.should_respond(text, is_mention, is_active_thread) or is_active_thread
-                logger.info(f"Agent should respond: {should_respond} for message: '{text[:50]}...' (active_thread: {is_active_thread})")
-                if not should_respond:
-                    logger.info("Agent decided not to respond to this message")
-                    return
+                # should_respond = self.should_respond(text, is_mention, is_active_thread) or is_active_thread
+                # logger.info(f"Agent should respond: {should_respond} for message: '{text[:50]}...' (active_thread: {is_active_thread})")
+                # if not should_respond:
+                #     logger.info("Agent decided not to respond to this message")
+                #     return
                 
                 # Get thread context if enabled
                 context = None

@@ -19,7 +19,17 @@ resource "aws_iam_policy" "eks_mcp_policy" {
           "eks:DescribeNodegroup",
           "eks:ListNodegroups",
           "eks:DescribeAddon",
-          "eks:ListAddons"
+          "eks:ListAddons",
+          "eks:AccessKubernetesApi"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "eks-mcp:InvokeMcp",
+          "eks-mcp:CallReadOnlyTool",
+          "eks-mcp:CallPrivilegedTool"
         ]
         Resource = "*"
       },

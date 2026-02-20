@@ -107,6 +107,10 @@ class Config:
     def ENABLE_EKS_MCP(self) -> bool:
         return os.getenv('ENABLE_EKS_MCP', 'false').lower() == 'true'
 
+    @property
+    def ALLOW_WRITE(self) -> bool:
+        return os.getenv('ALLOW_WRITE', 'true').lower() == 'true'
+
     # Langfuse Properties
     @property
     def ENABLE_LANGFUSE(self) -> bool:

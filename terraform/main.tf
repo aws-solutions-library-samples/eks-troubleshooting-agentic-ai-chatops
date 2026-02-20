@@ -8,8 +8,8 @@ terraform {
 }
 
 locals {
-  name   = var.name
-  region = "us-east-1"
+  name     = var.name
+  region   = "us-east-1"
   vpc_cidr = "10.0.0.0/16"
   azs      = slice(data.aws_availability_zones.available.names, 0, 3)
 
@@ -35,7 +35,7 @@ provider "kubernetes" {
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"
     command     = "aws"
-    args = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
+    args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
   }
 }
 
@@ -47,11 +47,11 @@ provider "helm" {
     exec {
       api_version = "client.authentication.k8s.io/v1beta1"
       command     = "aws"
-      args = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
+      args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
     }
   }
   registry {
-    url = "oci://public.ecr.aws"
+    url      = "oci://public.ecr.aws"
     username = "AWS"
     password = data.aws_ecrpublic_authorization_token.token.password
   }
@@ -65,7 +65,7 @@ provider "kubectl" {
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"
     command     = "aws"
-    args = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
+    args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
   }
 }
 
@@ -246,7 +246,7 @@ module "vpc" {
 
   private_subnet_tags = {
     "kubernetes.io/role/internal-elb" = 1
-    "karpenter.sh/discovery" = local.name
+    "karpenter.sh/discovery"          = local.name
   }
 
   tags = local.tags
@@ -262,7 +262,7 @@ resource "helm_release" "karpenter_default" {
   namespace  = "default"
   wait       = false
   depends_on = [module.eks, module.karpenter, helm_release.karpenter]
-  
+
   set {
     name  = "clusterName"
     value = local.name
