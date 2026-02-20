@@ -7,7 +7,7 @@ This guidance provides an example of Platform Engineering approach to troublesho
 
  **Strands-based AI Agentic workflow Troubleshooting**: An intelligent agent using AWS [Strands Agent framework](http://strandsagents.com/latest/) with [EKS MCP server](https://awslabs.github.io/mcp/servers/eks-mcp-server) integration for real-time troubleshooting
 
-It can be deployed using [Terraform](https://developer.hashicorp.com/terraform), which provisions all necessary AWS resources including EKS cluster with compute plane, required add-ons, monitoring tools, and application-specific infrastructure.
+It can be deployed using [Terraform](https://developer.hashicorp.com/terraform), which provisions all necessary AWS resources including EKS cluster with compute plane, required add-ons, monitoring tools, and the agentic troubleshooting agent.
 
 ## Architecture
 
@@ -19,19 +19,19 @@ _Figure 1: Guidance for Troubleshooting of Amazon EKS using Agentic AI workflow 
 
 ### Reference Architecture Steps
 
-1. **Log Collection and Streaming**: Amazon EKS cluster generates logs from various components (pods, containers, services, nodes etc.) which are collected by Fluent Bit and streamed to Amazon Kinesis Data Streams for real-time processing.
+1. **Amazon EKS Cluster**: Managed Kubernetes control plane and worker nodes running containerized workloads, providing the foundation for the agentic troubleshooting system.
 
-2. **Log Processing and Indexing**: Amazon Kinesis Data Streams processes the incoming log data and forwards it to Amazon OpenSearch for indexing and "knowledge base" data storage, enabling fast search and retrieval capabilities.
+2. **Agentic Troubleshooting Agent**: Strands-based multi-agent system deployed as pods in the EKS cluster, orchestrating intelligent troubleshooting workflows through specialized agents.
 
-3. **Vector Storage and Embeddings**: Log data is processed through AWS Bedrock to generate embeddings, which are stored in Amazon S3 for semantic search capabilities and knowledge retrieval.
+3. **Amazon Bedrock Integration**: Provides foundational AI models (Claude for analysis, Titan Embeddings for semantic search) for natural language processing and intelligent troubleshooting recommendations.
 
-4. **AI-Powered Analysis**: AWS Bedrock processes user queries and log context to generate intelligent troubleshooting recommendations using large language models.
+4. **S3 Vectors Knowledge Base**: Stores vector embeddings of historical troubleshooting cases, enabling semantic search and knowledge retrieval for similar past issues.
 
-5. **User Interaction Layer**: Users interact with the system through either a Gradio web interface or Slack integration, providing natural language queries about cluster issues.
+5. **EKS MCP Server**: Model Context Protocol server enabling real-time Kubernetes cluster interaction, allowing agents to execute kubectl commands and gather cluster state information.
 
-6. **Agent Orchestration**: AWS Strands agent framework coordinates multiple AI agents to perform complex troubleshooting tasks, including kubectl command execution and cluster state analysis.
+6. **Slack Integration**: ChatOps interface using Socket Mode for real-time user interaction, allowing DevOps teams to troubleshoot issues through natural language conversations.
 
-7. **Security and Access Control**: AWS IAM and EKS Pod Identity ensure secure access to cluster resources while maintaining proper permissions and audit trails.
+7. **Monitoring & Observability**: Prometheus and Grafana stack for cluster health monitoring, metrics collection, and alerting to Slack channels.
 
 ### Agentic AI Workflow Architecture
 
@@ -41,25 +41,25 @@ _Figure 2: Guidance for Troubleshooting of Amazon EKS using Agentic AI workflow 
 
 ### Agentic AI Workflow Architecture Steps
 
-1. **Setup** - Guidance workloads are deployed into an Amazon EKS cluster, configured for application readiness with compute plane managed by Karpenter auto-scaler.
+1. **Setup** - Agentic troubleshooting agent is deployed into an Amazon EKS cluster, configured with proper IAM permissions, Slack integration, and access to Amazon Bedrock and S3 Vectors knowledge base.
 
 2. **User Interaction** - Users (DevOps engineers, SREs, developers) who encounter Kubernetes (K8s) issues send troubleshooting requests through designated Slack channel integrated with K8s Troubleshooting AI Agent. Its components are running as containers on EKS cluster deployed from previously built images hosted in Elastic Container registry (ECR) via [Helm](https://helm.sh/) charts that reference the services-built images
 
-3. **Message Reception & Slack Integration** - Slack receives user messages coming via AWS Elastic Load Balancer and establishes a WebSocket connection (Socket Mode) to the Orchestrator agent running in the EKS cluster.
+3. **Message Reception & Slack Integration** - Slack establishes a WebSocket connection (Socket Mode) to the Orchestrator agent running in the EKS cluster, enabling real-time bidirectional communication.
 
-4. **Intelligent Message Classification & Orchestration** - Orchestrator agent receives users’ message and calls [Nova Micro](https://docs.aws.amazon.com/ai/responsible-ai/nova-micro-lite-pro/overview.html) model via  Amazon Bedrock API to determine whether the message requires K8s troubleshooting. If an issue is classified as K8s-related, the Orchestrator agent initiates a workflow by delegating tasks to specialized agents while maintaining overall session context.
+4. **Intelligent Message Classification & Orchestration** - Orchestrator agent receives users' message and calls [Nova Micro](https://docs.aws.amazon.com/ai/responsible-ai/nova-micro-lite-pro/overview.html) model via Amazon Bedrock API to determine whether the message requires K8s troubleshooting. If an issue is classified as K8s-related, the Orchestrator agent initiates a workflow by delegating tasks to specialized agents while maintaining overall session context.
 
 5. **Historical Knowledge Retrieval** - Orchestrator agent invokes the Memory agent, which connects to Amazon S3 Vectors based knowledge base to search for similar troubleshooting cases for precise issue classification
 
 6. **Semantic Vector Matching** - The Memory agent invokes [Titan Embeddings](https://docs.aws.amazon.com/bedrock/latest/userguide/titan-embedding-models.html) model via Amazon Bedrock API to generate semantic embeddings and perform vector similarity matching against the shared S3 Vectors knowledge base
 
-7. **Real-Time Cluster Intelligence** - Orchestrator agent invokes the K8s Specialist agent, which utilizes the hosted [AWS EKS Model Context Protocol (MCP) Server](https://docs.aws.amazon.com/eks/latest/userguide/eks-mcp-introduction.html) to execute commands against the EKS API Server. The Client of MCP Server gathers real-time cluster state, pod logs, events, and resource metrics to better “understand” the current problem context.
+7. **Real-Time Cluster Intelligence** - Orchestrator agent invokes the K8s Specialist agent, which utilizes the hosted [AWS EKS Model Context Protocol (MCP) Server](https://docs.aws.amazon.com/eks/latest/userguide/eks-mcp-introduction.html) to execute commands against the EKS API Server. The Client of MCP Server gathers real-time cluster state, pod logs, events, and resource metrics to better "understand" the current problem context.
 
 8. **Intelligent Issue Analysis** - K8s Specialist agent sends the collected cluster data to Anthropic Claude model via Amazon Bedrock for intelligent issue analysis and resolution generation. 
 
 9. **Comprehensive Solution Synthesis** - Orchestrator agent synthesizes the historical context received from Memory agent and current cluster state from K8s Specialist, then uses Claude model via Amazon Bedrock to generate comprehensive troubleshooting recommendations, which are stored in S3 Vectors for future reference.
 
-10. **ChatOps Integration** - Orchestrator agent generates troubleshooting recommendations and sends them back to the Users via integrated Slack channel. This illustrates an increasingly popular “ChatOps” Platform Engineering pattern. 
+10. **ChatOps Integration** - Orchestrator agent generates troubleshooting recommendations and sends them back to the Users via integrated Slack channel. This illustrates an increasingly popular "ChatOps" Platform Engineering pattern. 
 
 ## Project Code Structure
 
@@ -73,7 +73,7 @@ _Figure 2: Guidance for Troubleshooting of Amazon EKS using Agentic AI workflow 
 ├── terraform/                      # Infrastructure as Code
 │   ├── main.tf                    # Main EKS cluster configuration
 │   ├── agentic.tf                 # Strands agent deployment resources
-│   ├── modules/                   # Terraform modules
+│   ├── modules/                   # Terraform modules (not used in agentic deployment)
 │   ├── variables.tf               # Terraform variables
 │   └── outputs.tf                 # Terraform outputs
 ├── static/                        # Static assets
@@ -140,46 +140,39 @@ Before running this project, make sure you have the following tools installed:
 | [Amazon Elastic Kubernetes Service](https://aws.amazon.com/eks/) ( EKS)      | Core service       | Manages the Kubernetes control plane and compute nodes for container orchestration.                          |
 | [Amazon Elastic Compute Cloud](https://aws.amazon.com/ec2/) (EC2)            | Core service       | Provides the compute instances for EKS compute nodes and runs containerized applications.                    |
 | [Amazon Virtual Private Cloud](https://aws.amazon.com/vpc/) (VPC)            | Core Service       | Creates an isolated network environment with public and private subnets across multiple Availability Zones. |
-| [Amazon Simple Storage Service](https://aws.amazon.com/s3/) (S3)           | Core Service         | Stores vector embeddings generated from log data and serves as the knowledge base repository for the system's semantic search capabilities.                             |
-| [AWS Bedrock](https://aws.amazon.com/bedrock/)                              | Core Service       |Provides the foundational AI models for natural language processing, query understanding, and generating intelligent troubleshooting recommendations based on cluster data. |
-| [Amazon OpenSearch Service](https://aws.amazon.com/opensearch-service/)| Core Service       | Stores and indexes EKS cluster logs, enabling fast search and retrieval capabilities for the system to find relevant troubleshooting information.                       |
-| [Amazon Kinesis Data Streams](https://aws.amazon.com/kinesis/data-streams/) | Core Service      |Processes real-time log streams from EKS clusters, ensuring continuous data flow for immediate troubleshooting analysis and alerting.                                       |
-| [Amazon Elastic Container Registry](http://aws.amazon.com/ecr/) (ECR)        | Supporting service | Stores and manages Docker container images for EKS deployments.                                             |
+| [Amazon Simple Storage Service](https://aws.amazon.com/s3/) (S3)           | Core Service         | Stores vector embeddings for the knowledge base, enabling semantic search of historical troubleshooting cases.                             |
+| [AWS Bedrock](https://aws.amazon.com/bedrock/)                              | Core Service       |Provides the foundational AI models (Claude for analysis, Titan Embeddings for semantic search) for natural language processing and intelligent troubleshooting recommendations. |
+| [Amazon Elastic Container Registry](http://aws.amazon.com/ecr/) (ECR)        | Supporting service | Stores and manages Docker container images for the agentic troubleshooting agent.                                             |
 | [Elastic Load Balancing](https://aws.amazon.com/elasticloadbalancing/) (NLB) | Supporting service | Distributes incoming traffic across multiple targets in the EKS cluster.                                    |
 | [Amazon Elastic Block Store](https://aws.amazon.com/ebs) (EBS)               | Supporting service | Provides persistent block storage volumes for EC2 instances in the EKS cluster.                             |
-| [AWS Identity and Access Management](https://aws.amazon.com/iam/) (IAM)    | Supporting service   | Manages security permissions and access controls for the chatbot system, ensuring secure interaction with EKS clusters and AWS services.                              |
+| [AWS Identity and Access Management](https://aws.amazon.com/iam/) (IAM)    | Supporting service   | Manages security permissions and access controls for the agentic agent, ensuring secure interaction with EKS clusters, Bedrock, and S3 Vectors.                              |
 | [AWS Key Management Service](https://aws.amazon.com/kms/) (KMS)              | Security service   | Manages encryption keys for securing data in EKS and other AWS services.                                    |
-| [AWS Lambda](https://aws.amazon.com/lambda/)                               | Optional Service     | Provides serverless compute for processing Slack webhooks and handling event-driven troubleshooting workflows when Slack integration is enabled.                        |
 
 ### Cost
 
 You are responsible for the cost of the AWS services used while running this guidance.
 As of February 2026, the cost for running this guidance with the default settings in the US West (Oregon) Region is
-approximately **$457.72/month**.
+approximately **$288.81/month**.
 
 We recommend creating a [budget](https://alpha-docs-aws.amazon.com/awsaccountbilling/latest/aboutv2/budgets-create.html) through [AWS Cost Explorer](http://aws.amazon.com/aws-cost-management/aws-cost-explorer/) to help manage costs. Prices are subject to change. For full details, refer to the pricing webpage for each AWS service used in this guidance.
 
 ### Sample cost table
 
 The following table provides a sample cost breakdown for deploying this guidance with the default parameters in the
-`us-west-2` (Oregon) Region for one month. This estimate is based on the AWS Pricing Calculator output for the full
-deployment as per the guidance. This **does not** factor any model deployments on top of the running environment.
+`us-west-2` (Oregon) Region for one month. This estimate is based on the AWS Pricing Calculator output for the agentic deployment. This **does not** factor heavy Bedrock usage beyond the baseline estimate.
 
 | **AWS service**                  | Dimensions                        | Cost, month [USD] |
 |----------------------------------|-----------------------------------|-------------------|
 | Amazon EKS                       | 1 cluster                         | $73.00            |
 | Amazon VPC                       | 1 NAT Gateways                    | $33.75            |
-| Amazon EC2                       | 2 m5.large instances              | $156.16           |
+| Amazon EC2                       | 3 m5.large instances              | $156.16           |
 | Amazon EBS                       | gp3 storage volumes and snapshots | $7.20             |
 | Elastic Load Balancer            | 1 NLB for workloads               | $16.46            |
 | Amazon VPC                       | Public IP addresses               | $3.65             |
 | AWS Key Management Service (KMS) | Keys and requests                 | $6.00             |
-| AWS Bedrock (Titan)             | 1M input tokens, 100K output tokens | $25.00         |
-| Amazon OpenSearch Service        | 3 m5.large.search instances         | $95.00         |
-| Amazon Kinesis Data Streams      | 2 shards, 10GB data ingestion       | $30.00         |
-| Amazon S3                        | 500GB storage, 10K requests         | $11.50         |
-| AWS Lambda                       | 1M invocations, 512MB memory        | $0.00          |
-| **TOTAL**                        |                                   | **$457.72/month** |
+| AWS Bedrock (Claude + Titan)     | 1M input tokens, 100K output tokens | $30.00         |
+| Amazon S3                        | 10GB storage, 10K requests         | $0.59          |
+| **TOTAL**                        |                                   | **$288.81/month** |
 
 For a more accurate estimate based on your specific configuration and usage patterns, we recommend using
 the [AWS Pricing Calculator](https://calculator.aws).
@@ -198,6 +191,7 @@ Workload Ready Cluster. Here are the key security components and considerations:
 ### Identity and Access Management (IAM)
 
 - **EKS Managed Node Groups**: These use IAM roles with specific permissions required for nodes to join the cluster and for pods to access AWS services.
+- **EKS Pod Identity**: The agentic troubleshooting agent uses EKS Pod Identity for secure, least-privilege access to AWS services including Bedrock, S3 Vectors, CloudWatch, and EKS APIs.
 
 ### Network Security
 
@@ -217,11 +211,11 @@ Workload Ready Cluster. Here are the key security components and considerations:
 ### Kubernetes-specific Security
 
 - **Kubernetes RBAC**: Role-Based Access Control is implemented within the EKS cluster to manage fine-grained access to Kubernetes resources.
+- **EKS Access Entries**: The agentic agent uses EKS access entries with cluster admin policy for full cluster access required for troubleshooting operations.
 
 ### Secrets Management
 
-- **AWS Secrets Manager**: While not explicitly shown in the diagram, it's commonly used to securely store and manage
-  sensitive information such as database credentials, API keys, and other secrets used by applications running on EKS.
+- **Kubernetes Secrets**: Slack credentials (bot token, app token, signing secret) are stored as Kubernetes secrets and mounted into the agent pods.
 
 ### Additional Security Considerations
 
@@ -232,7 +226,7 @@ Workload Ready Cluster. Here are the key security components and considerations:
 - Regularly review and rotate IAM and Kubernetes RBAC permissions.
 
 ## Deployment Options
-{TODO} update tio live IG link when publishing
+{TODO} update to live IG link when publishing
 
 Please see detailed [Implementation Guide](https://implementationguides.kits.eventoutfitters.aws.dev/tbst-eks-rag-1017/compute/troubleshooting-amazon-eks-using-rag-based-chatbot.html) for instruction for solution deployment, validation, basic troubleshooting and uninstallation options. 
 

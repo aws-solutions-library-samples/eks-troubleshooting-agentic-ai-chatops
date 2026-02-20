@@ -1,9 +1,10 @@
-# Agentic deployment resources - only created when deployment_type = "agentic"
+# Agentic AI Troubleshooting Agent Deployment
 
-# IAM policy for EKS MCP server
+################################################################################
+# IAM Policy for EKS MCP Server
+################################################################################
+
 resource "aws_iam_policy" "eks_mcp_policy" {
-  count = var.deployment_type == "agentic" ? 1 : 0
-
   name        = "${local.name}-eks-mcp-policy"
   description = "IAM policy for EKS MCP server access"
 
@@ -68,7 +69,7 @@ resource "aws_iam_policy" "eks_mcp_policy" {
           "s3vectors:GetVectors",
           "s3vectors:DeleteVectors"
         ]
-        Resource = var.deployment_type == "agentic" && var.vector_bucket_name != "" ? [
+        Resource = var.vector_bucket_name != "" ? [
           "arn:aws:s3vectors:*:${data.aws_caller_identity.current.account_id}:bucket/${var.vector_bucket_name}/*",
           "arn:aws:s3vectors:*:${data.aws_caller_identity.current.account_id}:bucket/${var.vector_bucket_name}/index/${var.vector_index_name}"
         ] : []
@@ -79,22 +80,11 @@ resource "aws_iam_policy" "eks_mcp_policy" {
   tags = local.tags
 }
 
-# Pod Identity Association for the agentic troubleshooting agent
-resource "aws_eks_pod_identity_association" "agentic_agent" {
-  count = var.deployment_type == "agentic" ? 1 : 0
+################################################################################
+# IAM Role for Agentic Troubleshooting Agent
+################################################################################
 
-  cluster_name    = module.eks.cluster_name
-  namespace       = "default"
-  service_account = "k8s-troubleshooting-agent"
-  role_arn        = aws_iam_role.agentic_agent_role[0].arn
-
-  tags = local.tags
-}
-
-# IAM role for the agentic troubleshooting agent
 resource "aws_iam_role" "agentic_agent_role" {
-  count = var.deployment_type == "agentic" ? 1 : 0
-
   name = "${local.name}-agentic-agent-role"
 
   assume_role_policy = jsonencode({
@@ -116,32 +106,40 @@ resource "aws_iam_role" "agentic_agent_role" {
   tags = local.tags
 }
 
-# Attach the EKS MCP policy to the role
 resource "aws_iam_role_policy_attachment" "agentic_agent_eks_mcp" {
-  count = var.deployment_type == "agentic" ? 1 : 0
-
-  role       = aws_iam_role.agentic_agent_role[0].name
-  policy_arn = aws_iam_policy.eks_mcp_policy[0].arn
+  role       = aws_iam_role.agentic_agent_role.name
+  policy_arn = aws_iam_policy.eks_mcp_policy.arn
 }
 
-# Access entry for the agentic agent role
-resource "aws_eks_access_entry" "agentic_agent" {
-  count = var.deployment_type == "agentic" ? 1 : 0
+################################################################################
+# EKS Pod Identity Association
+################################################################################
 
+resource "aws_eks_pod_identity_association" "agentic_agent" {
+  cluster_name    = module.eks.cluster_name
+  namespace       = "default"
+  service_account = "k8s-troubleshooting-agent"
+  role_arn        = aws_iam_role.agentic_agent_role.arn
+
+  tags = local.tags
+}
+
+################################################################################
+# EKS Access Entry and Policy
+################################################################################
+
+resource "aws_eks_access_entry" "agentic_agent" {
   cluster_name      = module.eks.cluster_name
-  principal_arn     = aws_iam_role.agentic_agent_role[0].arn
+  principal_arn     = aws_iam_role.agentic_agent_role.arn
   kubernetes_groups = []
   type              = "STANDARD"
 
   tags = local.tags
 }
 
-# Access policy association for full admin access
 resource "aws_eks_access_policy_association" "agentic_agent_admin" {
-  count = var.deployment_type == "agentic" ? 1 : 0
-
   cluster_name  = module.eks.cluster_name
-  principal_arn = aws_iam_role.agentic_agent_role[0].arn
+  principal_arn = aws_iam_role.agentic_agent_role.arn
   policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
 
   access_scope {
@@ -151,10 +149,11 @@ resource "aws_eks_access_policy_association" "agentic_agent_admin" {
   depends_on = [aws_eks_access_entry.agentic_agent]
 }
 
-# Kubernetes secret for Slack credentials
-resource "kubernetes_secret" "slack_credentials" {
-  count = var.deployment_type == "agentic" ? 1 : 0
+################################################################################
+# Kubernetes Secret for Slack Credentials
+################################################################################
 
+resource "kubernetes_secret" "slack_credentials" {
   metadata {
     name      = "slack-credentials"
     namespace = "default"
@@ -169,9 +168,12 @@ resource "kubernetes_secret" "slack_credentials" {
   type = "Opaque"
 }
 
-# Helm release for the agentic troubleshooting agent
+################################################################################
+# Helm Release for Agentic Troubleshooting Agent
+################################################################################
+
 resource "helm_release" "agentic_agent" {
-  count = var.deployment_type == "agentic" && var.agentic_image_repository != "" ? 1 : 0
+  count = var.agentic_image_repository != "" ? 1 : 0
 
   name             = "k8s-troubleshooting-agent"
   chart            = "${path.module}/../apps/agentic-troubleshooting/helm/k8s-troubleshooting-agent"
